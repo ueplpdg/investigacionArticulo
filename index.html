@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Artículo de investigación · 3ro BGU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="investigacion-data.js"></script>
+<style>
+body{margin:0;background:#f4f1ea;color:#1c2422;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1e5a52}a:hover{color:#123b35}
+textarea,input,select,button{font-family:inherit}
+</style>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3b2f5c"/><rect x="30" y="24" width="40" height="52" rx="3" fill="#f4f1ea"/><rect x="37" y="34" width="26" height="4" fill="#3b2f5c"/><rect x="37" y="44" width="26" height="3" fill="#9d92b8"/><rect x="37" y="52" width="20" height="3" fill="#9d92b8"/><rect x="37" y="60" width="24" height="3" fill="#9d92b8"/></svg></template>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:100vh;align-items:stretch">
+
+<aside style="flex:1 1 250px;max-width:300px;background:#1f1b2b;color:#ebe7f2;padding:26px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-direction:column;gap:6px;padding:0 8px">
+    <div style="font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#b7aed6">3ro BGU · Cuaderno de investigación</div>
+    <div style="font:600 23px/1.15 'Source Serif 4',Georgia,serif;color:#fff">Artículo de investigación</div>
+    <div style="font-size:13px;color:#b9b3c7">{{ tipoShort }}</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:0 8px">
+    <div style="display:flex;justify-content:space-between;font:13px 'IBM Plex Mono',monospace;color:#c9c3d6"><span>Progreso</span><span>{{ progressLabel }}</span></div>
+    <div style="height:6px;background:#37314a;border-radius:3px;overflow:hidden"><div style="height:100%;background:#b7a6f0;width:{{ progressPct }}"></div></div>
+  </div>
+  <nav style="display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ steps }}" as="item" hint-placeholder-count="17">
+      <button onClick="{{ item.go }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;cursor:pointer;padding:7px 8px;border-radius:6px;background:{{ item.bg }};color:#ebe7f2;font-size:14px" style-hover="background:#2c2640">
+        <span style="flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 11px 'IBM Plex Mono',monospace;background:{{ item.dot }};color:{{ item.dotInk }}">{{ item.num }}</span>
+        <span style="flex:1;line-height:1.25">{{ item.label }}</span>
+      </button>
+    </sc-for>
+  </nav>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto;padding:0 8px">
+    <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid #37314a;border-radius:6px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="flex:0 0 8px;height:8px;border-radius:50%;background:{{ cloudDot }}"></span><span>{{ cloudLabel }}</span></div>
+      <div style="font:12px 'IBM Plex Mono',monospace;color:#b7aed6">Código: {{ cloudId }}</div>
+      <sc-if value="{{ hasCloud }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button onClick="{{ cloudNow }}" style="padding:7px 10px;border-radius:5px;border:0;background:#2c2640;color:#ebe7f2;font-size:12px;cursor:pointer" style-hover="background:#37314a">Guardar en la nube ahora</button>
+          <button onClick="{{ fetchFeedback }}" style="padding:7px 10px;border-radius:5px;border:0;background:#2c2640;color:#ebe7f2;font-size:12px;cursor:pointer" style-hover="background:#37314a">Ver comentario del docente</button>
+        </div>
+      </sc-if>
+    </div>
+    <button onClick="{{ saveJson }}" style="padding:9px 12px;border-radius:6px;border:1px solid #4a4360;background:transparent;color:#ebe7f2;font-size:13px;cursor:pointer" style-hover="background:#2c2640">Guardar avance (.json)</button>
+    <label style="padding:9px 12px;border-radius:6px;border:1px solid #4a4360;color:#ebe7f2;font-size:13px;cursor:pointer;text-align:center">Cargar avance<input type="file" accept=".json,application/json" onChange="{{ loadJson }}" style="display:none"></label>
+  </div>
+</aside>
+
+<main style="flex:999 1 560px;min-width:0;padding:44px clamp(16px,4vw,56px) 90px;box-sizing:border-box;background-color:#f4f1ea;background-image:linear-gradient(#e8e2d4 1px,transparent 1px);background-size:100% 28px">
+<div style="max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:24px">
+
+  <sc-if value="{{ hasComentario }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#fff6d9;border:1px solid #e6cf86;border-radius:6px;padding:14px 18px;display:flex;flex-direction:column;gap:4px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#7a5a00">Comentario del docente</div>
+      <div style="font-size:15px;line-height:1.5;white-space:pre-wrap">{{ comentario }}</div>
+    </div>
+  </sc-if>
+
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">§ {{ cur.num }} / {{ total }} · {{ cur.fase }}</div>
+    <h1 style="margin:0;font:600 clamp(30px,4vw,42px)/1.1 'Source Serif 4',Georgia,serif;letter-spacing:-.01em;text-wrap:balance">{{ cur.label }}</h1>
+    <p style="margin:0;font-size:17px;line-height:1.55;color:#4a4757;max-width:68ch;text-wrap:pretty">{{ cur.desc }}</p>
+  </header>
+
+  <sc-if value="{{ isGuide }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+        <div style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:6px"><div style="font:600 12px 'IBM Plex Mono',monospace;color:#4b3d82">APRENDE</div><div style="font-size:14px;line-height:1.5;color:#4a4757">Cada paso empieza con una lección corta y un ejemplo de un artículo modelo.</div></div>
+        <div style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:6px"><div style="font:600 12px 'IBM Plex Mono',monospace;color:#4b3d82">PRACTICA</div><div style="font-size:14px;line-height:1.5;color:#4a4757">Un ejercicio rápido para comprobar que entendiste. Puedes reintentar.</div></div>
+        <div style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:6px"><div style="font:600 12px 'IBM Plex Mono',monospace;color:#4b3d82">CONSTRUYE</div><div style="font-size:14px;line-height:1.5;color:#4a4757">Usas la IA como tutor para obtener un borrador y luego escribes tu propia versión.</div></div>
+        <div style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:6px"><div style="font:600 12px 'IBM Plex Mono',monospace;color:#4b3d82">VERIFICA</div><div style="font-size:14px;line-height:1.5;color:#4a4757">La página revisa extensión, citas y cuánto se parece tu texto al de la IA.</div></div>
+      </div>
+
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h2 style="margin:0;font:600 22px 'Source Serif 4',Georgia,serif">La ruta de tu investigación</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 26px;font-size:15px;line-height:1.5">
+          <div><b>1. Planificar</b><div style="color:#4a4757;font-size:14px">Equipo y tipo de investigación, tema delimitado, problema, pregunta y objetivos.</div></div>
+          <div><b>2. Investigar</b><div style="color:#4a4757;font-size:14px">Búsqueda en bases académicas, matriz de fuentes verificadas y citas APA 7.</div></div>
+          <div><b>3. Redactar</b><div style="color:#4a4757;font-size:14px">Introducción, marco teórico, metodología o argumentos, resultados, discusión y conclusiones.</div></div>
+          <div><b>4. Entregar</b><div style="color:#4a4757;font-size:14px">Resumen y Abstract, título final, revisión y artículo APA 7 en Word y PDF.</div></div>
+        </div>
+      </section>
+
+      <section style="background:#ece8f6;border-radius:6px;padding:20px 22px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-weight:600;font-size:16px">Reglas de honestidad académica</div>
+        <ul style="margin:0;padding-left:18px;font-size:15px;line-height:1.55;display:flex;flex-direction:column;gap:4px">
+          <li>La IA es tu <b>tutor</b>, no tu autor. Su respuesta es solo un borrador.</li>
+          <li>Al artículo final solo pasa <b>tu versión</b>, escrita con tus palabras.</li>
+          <li>Si tu texto se parece demasiado al de la IA, la sección no se da por completa.</li>
+          <li>Nunca inventes datos, autores ni referencias. Cada fuente debe existir y estar verificada por ti.</li>
+          <li>Al final se incluye una declaración de cómo usaron la IA.</li>
+        </ul>
+      </section>
+
+      <details style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:18px 22px">
+        <summary style="cursor:pointer;font-weight:600;font-size:16px">Para el docente: Google Sheets, Drive y comentarios</summary>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;font-size:14px;line-height:1.55">
+          <div>Cada pareja se guarda sola en tu hoja (una fila por proyecto) y en tu Drive (carpeta <b>Investigacion 3ro BGU / paralelo</b>). Al entregar se crean el Word y el PDF. Lo que escribas en la columna <b>Comentario docente</b> le aparece a la pareja en esta página.</div>
+          <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px">
+            <li>Crea una hoja de cálculo y abre <b>Extensiones → Apps Script</b>.</li>
+            <li>Borra lo que haya, pega el código de abajo (también está en <b>apps-script.gs</b> del repositorio) y guarda.</li>
+            <li><b>Implementar → Nueva implementación → Aplicación web</b>. Ejecutar como: <b>Yo</b>. Acceso: <b>Cualquier usuario</b>. Autoriza los permisos.</li>
+            <li>Copia la URL que termina en <b>/exec</b> y pégala en <b>config.js</b> del repositorio.</li>
+          </ol>
+          <pre style="margin:0;white-space:pre-wrap;background:#1f1b2b;color:#ebe7f2;border-radius:6px;padding:14px;font:12.5px/1.55 'IBM Plex Mono',monospace;overflow:auto;max-height:380px">{{ appsScript }}</pre>
+        </div>
+      </details>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isEquipo }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Autor 1 (Apellido, Nombre)</span><input value="{{ meta.a1 }}" onChange="{{ onA1 }}" placeholder="González García, Diego" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Autor 2 (Apellido, Nombre)</span><input value="{{ meta.a2 }}" onChange="{{ onA2 }}" placeholder="Pérez Andrade, María" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Paralelo</span><input value="{{ meta.paralelo }}" onChange="{{ onParalelo }}" placeholder="A" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">IA que usarán</span>
+          <select value="{{ meta.ia }}" onChange="{{ onIa }}" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"><option value="DeepSeek">DeepSeek</option><option value="ChatGPT">ChatGPT</option><option value="Gemini">Gemini</option><option value="Copilot">Copilot</option></select></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Institución</span><input value="{{ meta.institucion }}" onChange="{{ onInstitucion }}" placeholder="Unidad Educativa…" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Docente</span><input value="{{ meta.docente }}" onChange="{{ onDocente }}" placeholder="Nombre del docente" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Asignatura</span><input value="{{ meta.asignatura }}" onChange="{{ onAsignatura }}" placeholder="Proyecto de investigación" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Fecha de entrega</span><input type="date" value="{{ meta.fecha }}" onChange="{{ onFecha }}" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:12px">
+        <h2 style="margin:0;font:600 22px 'Source Serif 4',Georgia,serif">Elige el tipo de investigación</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+          <sc-for list="{{ tipos }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.pick }}" style="text-align:left;cursor:pointer;background:{{ t.bg }};border:2px solid {{ t.border }};border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;color:#1c2422">
+              <span style="font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#4b3d82">{{ t.enfoque }}</span>
+              <span style="font:600 19px 'Source Serif 4',Georgia,serif">{{ t.label }}</span>
+              <span style="font-size:14px;line-height:1.5;color:#4a4757">{{ t.desc }}</span>
+              <span style="font-size:13px;line-height:1.45;color:#4a4757;border-top:1px solid #e6e0d2;padding-top:8px"><i>Ej.: {{ t.ej }}</i></span>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <h2 style="margin:0;font:600 20px 'Source Serif 4',Georgia,serif">Guardado en la nube</h2>
+          <div style="font-size:14px;line-height:1.5;color:#4a4757">Tu avance se guarda solo en la hoja del docente. Anota tu código: con él recuperas el proyecto en cualquier computadora.</div>
+        </div>
+        <sc-if value="{{ showUrlField }}" hint-placeholder-val="{{ false }}">
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">URL del docente</span><input value="{{ sheetUrl }}" onChange="{{ onSheetUrl }}" placeholder="https://script.google.com/macros/s/…/exec" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:13px 'IBM Plex Mono',monospace;color:#1c2422"></label>
+        </sc-if>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:600">Código de su proyecto</span><span style="font:600 26px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#4b3d82">{{ cloudId }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Recuperar un proyecto</span>
+            <div style="display:flex;gap:8px"><input value="{{ recoverCode }}" onChange="{{ onRecoverCode }}" placeholder="INV-XXXXX" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:14px 'IBM Plex Mono',monospace;text-transform:uppercase;color:#1c2422"><button onClick="{{ recover }}" style="padding:10px 14px;border-radius:6px;border:1px solid #4b3d82;background:transparent;color:#4b3d82;font-weight:600;font-size:14px;cursor:pointer">Recuperar</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasLesson }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-left:0;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Aprende</div>
+      <h2 style="margin:0;font:600 22px 'Source Serif 4',Georgia,serif">{{ lesson.t }}</h2>
+      <sc-for list="{{ lesson.p }}" as="para" hint-placeholder-count="1"><p style="margin:0;font-size:16px;line-height:1.6;max-width:70ch;text-wrap:pretty">{{ para }}</p></sc-for>
+      <ul style="margin:0;padding-left:20px;font-size:15px;line-height:1.55;display:flex;flex-direction:column;gap:5px">
+        <sc-for list="{{ lesson.pts }}" as="pt" hint-placeholder-count="3"><li>{{ pt }}</li></sc-for>
+      </ul>
+      <sc-if value="{{ lesson.hasEj }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#f3f0e8;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+          <div style="font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#6b6578">Ejemplo del artículo modelo</div>
+          <div style="font:16px/1.6 'Source Serif 4',Georgia,serif;white-space:pre-wrap">{{ lesson.ej }}</div>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ hasEx }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:18px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Practica</div>
+      <sc-for list="{{ exs }}" as="ex" hint-placeholder-count="1">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:16px;font-weight:600;line-height:1.45">{{ ex.q }}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ ex.opts }}" as="op" hint-placeholder-count="3">
+              <button onClick="{{ op.pick }}" style="text-align:left;cursor:pointer;padding:10px 12px;border-radius:6px;border:1px solid {{ op.border }};background:{{ op.bg }};font-size:15px;line-height:1.4;color:#1c2422">{{ op.t }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ ex.hasFb }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px;font-weight:600;color:{{ ex.fbColor }}">{{ ex.fb }}</div></sc-if>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isTema }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · 1. Elige o propone tu idea</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ areas }}" as="ar" hint-placeholder-count="6"><button onClick="{{ ar.pick }}" style="padding:8px 12px;border-radius:20px;border:1px solid {{ ar.border }};background:{{ ar.bg }};color:{{ ar.ink }};font-size:14px;cursor:pointer">{{ ar.n }}</button></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px">
+          <sc-for list="{{ topics }}" as="tp" hint-placeholder-count="4">
+            <button onClick="{{ tp.pick }}" style="text-align:left;cursor:pointer;padding:12px 14px;border-radius:6px;border:1px solid #dcd5c6;background:#fff;display:flex;flex-direction:column;gap:4px;color:#1c2422" style-hover="border-color:#4b3d82">
+              <span style="font-size:15px;line-height:1.4">{{ tp.t }}</span>
+              <span style="font:11px 'IBM Plex Mono',monospace;color:#4b3d82;text-transform:uppercase;letter-spacing:.06em">{{ tp.tipo }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Su idea (pueden escribir una propia)</span><textarea value="{{ tema.idea }}" onChange="{{ onIdea }}" placeholder="Ej.: Queremos investigar por qué muchos compañeros duermen poco y si tiene que ver con el celular." style="min-height:80px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.5;color:#1c2422"></textarea></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">¿Qué les interesa o preocupa? (opcional)</span><input value="{{ tema.intereses }}" onChange="{{ onIntereses }}" placeholder="Deportes, salud mental, tecnología, nuestra comunidad…" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      </section>
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · 2. Delimita con el embudo</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">¿Qué aspecto?</span><input value="{{ tema.que }}" onChange="{{ onQue }}" placeholder="Uso nocturno de redes sociales y calidad del sueño" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:14px;color:#1c2422"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">¿En quiénes?</span><input value="{{ tema.quienes }}" onChange="{{ onQuienes }}" placeholder="Estudiantes de 3ro BGU" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:14px;color:#1c2422"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">¿Dónde?</span><input value="{{ tema.donde }}" onChange="{{ onDonde }}" placeholder="Unidad Educativa X, Quito" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:14px;color:#1c2422"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">¿Cuándo?</span><input value="{{ tema.cuando }}" onChange="{{ onCuando }}" placeholder="Año lectivo 2026-2027" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:14px;color:#1c2422"></label>
+        </div>
+        <button onClick="{{ armarTema }}" style="align-self:flex-start;padding:10px 16px;border-radius:6px;border:1px solid #4b3d82;background:transparent;color:#4b3d82;font-weight:600;font-size:14px;cursor:pointer">Armar tema con mis respuestas</button>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Tema delimitado (final)</span><textarea value="{{ tema.delimitado }}" onChange="{{ onDelimitado }}" placeholder="Uso nocturno de redes sociales y calidad del sueño en estudiantes de 3ro BGU de la Unidad Educativa X, Quito, año lectivo 2026-2027" style="min-height:70px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:16px/1.5 'Source Serif 4',Georgia,serif;color:#1c2422"></textarea></label>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isProblema }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:8px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Pregunta de investigación</div>
+      <textarea value="{{ pregunta }}" onChange="{{ onPregunta }}" placeholder="¿Qué relación existe entre…?" style="min-height:64px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:17px/1.5 'Source Serif 4',Georgia,serif;color:#1c2422"></textarea>
+      <div style="font-size:13px;color:{{ pregColor }}">{{ pregHint }}</div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isObjetivos }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Tus objetivos (versión propia)</div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Objetivo general</span><textarea value="{{ obj.general }}" onChange="{{ onObjG }}" placeholder="Determinar la relación entre…" style="min-height:60px;resize:vertical;padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.5;color:#1c2422"></textarea></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Objetivo específico 1</span><input value="{{ obj.e1 }}" onChange="{{ onObjE1 }}" placeholder="Identificar…" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Objetivo específico 2</span><input value="{{ obj.e2 }}" onChange="{{ onObjE2 }}" placeholder="Describir…" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Objetivo específico 3</span><input value="{{ obj.e3 }}" onChange="{{ onObjE3 }}" placeholder="Comparar…" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">{{ hipLabel }}</span><span style="font-size:13px;color:#5d5a69">{{ hipHelp }}</span><textarea value="{{ obj.hip }}" onChange="{{ onHip }}" placeholder="{{ hipPh }}" style="min-height:60px;resize:vertical;padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.5;color:#1c2422"></textarea></label>
+      <div style="font-size:13px;color:{{ verbColor }}">{{ verbHint }}</div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isBusqueda }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Tus palabras clave y búsquedas</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Palabras clave en español (separadas por coma)</span><input value="{{ kw.es }}" onChange="{{ onKwEs }}" placeholder="calidad del sueño, redes sociales, adolescentes" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">En inglés</span><input value="{{ kw.en }}" onChange="{{ onKwEn }}" placeholder="sleep quality, social media, adolescents" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:14px;font-weight:600">Cadena de búsqueda generada</span>
+        <code style="background:#1f1b2b;color:#ebe7f2;border-radius:6px;padding:12px 14px;font:13.5px/1.5 'IBM Plex Mono',monospace;word-break:break-word">{{ searchEs }}</code>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ searchLinks }}" as="sl" hint-placeholder-count="6"><a href="{{ sl.u }}" target="_blank" style="padding:9px 13px;border-radius:6px;border:1px solid #cfc7b6;background:#fff;font-size:14px;text-decoration:none;color:#1c2422">Buscar en {{ sl.n }}</a></sc-for>
+      </div>
+      <div style="font-size:13px;color:#5d5a69">Cada fuente útil que encuentres, regístrala de inmediato en la Matriz de fuentes (siguiente paso).</div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isFuentes }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Matriz de fuentes</div>
+        <div style="font:600 13px 'IBM Plex Mono',monospace;color:{{ srcColor }}">{{ srcStats }}</div>
+      </div>
+      <sc-for list="{{ fuentes }}" as="f" hint-placeholder-count="0">
+        <div style="border:1px solid {{ f.border }};border-radius:6px;background:#fff;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px">
+            <span style="flex:0 0 26px;font:600 12px 'IBM Plex Mono',monospace;color:#6b6578;padding-top:2px">{{ f.num }}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+              <div style="font:15px/1.5 'Source Serif 4',Georgia,serif;word-break:break-word">{{ f.ref }}</div>
+              <div style="font:12px 'IBM Plex Mono',monospace;color:{{ f.stColor }}">{{ f.status }}</div>
+            </div>
+            <button onClick="{{ f.toggle }}" style="flex:0 0 auto;padding:6px 10px;border-radius:5px;border:1px solid #cfc7b6;background:#fff;font-size:13px;cursor:pointer">{{ f.toggleLabel }}</button>
+          </div>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid #eee8dc;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+              <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Tipo</span><select value="{{ f.tipo }}" onChange="{{ f.onTipo }}" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"><option value="articulo">Artículo de revista</option><option value="libro">Libro</option><option value="tesis">Tesis</option><option value="informe">Informe institucional</option><option value="web">Página web</option></select></label>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:span 2"><span style="font-size:12px;font-weight:600">Autor(es): Apellido, I. — separa con ;</span><input value="{{ f.autores }}" onChange="{{ f.onAutores }}" placeholder="Pérez, J.; López, M. A.  (o institución: INEC)" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+              <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Año</span><input value="{{ f.anio }}" onChange="{{ f.onAnio }}" placeholder="2022" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;font-weight:600">Título</span><input value="{{ f.titulo }}" onChange="{{ f.onTitulo }}" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:span 2"><span style="font-size:12px;font-weight:600">{{ f.fuenteLabel }}</span><input value="{{ f.fuente }}" onChange="{{ f.onFuente }}" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+              <sc-if value="{{ f.isArt }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Vol.</span><input value="{{ f.vol }}" onChange="{{ f.onVol }}" style="min-width:0;padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Núm.</span><input value="{{ f.num2 }}" onChange="{{ f.onNum }}" style="min-width:0;padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Págs.</span><input value="{{ f.pags }}" onChange="{{ f.onPags }}" placeholder="45-60" style="min-width:0;padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+                </div>
+              </sc-if>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;font-weight:600">DOI o URL</span><input value="{{ f.url }}" onChange="{{ f.onUrl }}" placeholder="https://doi.org/..." style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font:13px 'IBM Plex Mono',monospace;color:#1c2422"></label>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1"><span style="font-size:12px;font-weight:600">Idea principal (con tus palabras)</span><textarea value="{{ f.idea }}" onChange="{{ f.onIdea }}" style="min-height:60px;resize:vertical;padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;line-height:1.5;color:#1c2422"></textarea></label>
+              <label style="display:flex;flex-direction:column;gap:4px;grid-column:span 2"><span style="font-size:12px;font-weight:600">Cita textual útil (copiada exacta)</span><textarea value="{{ f.cita }}" onChange="{{ f.onCita }}" style="min-height:50px;resize:vertical;padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;line-height:1.5;color:#1c2422"></textarea></label>
+              <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600">Página de la cita</span><input value="{{ f.pag }}" onChange="{{ f.onPag }}" placeholder="15" style="padding:8px;border:1px solid #cfc7b6;border-radius:5px;background:#fff;font-size:14px;color:#1c2422"></label>
+              <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <button onClick="{{ f.onVer }}" style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:5px;border:1px solid #4b3d82;background:{{ f.verBg }};color:{{ f.verInk }};font-size:13px;font-weight:600;cursor:pointer">{{ f.verLabel }}</button>
+                <sc-if value="{{ f.hasUrl }}" hint-placeholder-val="{{ false }}"><a href="{{ f.href }}" target="_blank" style="font-size:13px">Abrir fuente</a></sc-if>
+                <button onClick="{{ f.del }}" style="margin-left:auto;padding:8px 12px;border-radius:5px;border:1px solid #cfc7b6;background:#fff;color:#8a3b12;font-size:13px;cursor:pointer">Eliminar</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <button onClick="{{ addFuente }}" style="align-self:flex-start;padding:10px 16px;border-radius:6px;border:0;background:#4b3d82;color:#fff;font-weight:600;font-size:14px;cursor:pointer" style-hover="background:#3b2f6a">+ Agregar fuente</button>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isCitas }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Herramienta · Cómo citar cada fuente</div>
+        <sc-if value="{{ noVerified }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px;color:#9a5a00">Primero verifica fuentes en la Matriz de fuentes.</div></sc-if>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ citeSrcs }}" as="cs" hint-placeholder-count="3"><button onClick="{{ cs.pick }}" style="padding:7px 11px;border-radius:20px;border:1px solid {{ cs.border }};background:{{ cs.bg }};color:{{ cs.ink }};font-size:13px;cursor:pointer">{{ cs.n }}</button></sc-for>
+        </div>
+        <sc-for list="{{ citeForms }}" as="cf" hint-placeholder-count="0">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-top:1px solid #eee8dc;padding-top:10px">
+            <span style="flex:0 0 150px;font-size:13px;font-weight:600;color:#5d5a69">{{ cf.k }}</span>
+            <span style="flex:1 1 260px;font:15px/1.5 'Source Serif 4',Georgia,serif">{{ cf.v }}</span>
+            <button onClick="{{ cf.copy }}" style="padding:6px 10px;border-radius:5px;border:1px solid #cfc7b6;background:#fff;font-size:12px;cursor:pointer">Copiar</button>
+          </div>
+        </sc-for>
+      </section>
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Practica con tus fuentes</div>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">1. Parafrasea la idea de una fuente con tus palabras y cítala</span><textarea value="{{ practica.para }}" onChange="{{ onPara }}" placeholder="Los adolescentes que usan el celular antes de dormir tardan más en conciliar el sueño (Pérez, 2021)." style="min-height:80px;resize:vertical;padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.5;color:#1c2422"></textarea><span style="font-size:13px;color:{{ paraColor }}">{{ paraHint }}</span></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">2. Escribe una cita textual corta, con comillas y página</span><textarea value="{{ practica.text }}" onChange="{{ onTextual }}" placeholder="Según Pérez (2021), “el uso de pantallas…” (p. 15)." style="min-height:80px;resize:vertical;padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.5;color:#1c2422"></textarea><span style="font-size:13px;color:{{ textColor }}">{{ textHint }}</span></label>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMetodo }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:10px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · {{ instrLabel }}</div>
+      <div style="font-size:14px;line-height:1.5;color:#4a4757">{{ instrHelp }}</div>
+      <textarea value="{{ cuestionario }}" onChange="{{ onCuestionario }}" placeholder="1. ¿Cuántas horas duermes en una noche de clases? (Menos de 5 / 5-6 / 7-8 / Más de 8)&#10;2. …" style="min-height:200px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;line-height:1.55;color:#1c2422"></textarea>
+      <sc-if value="{{ isEncuesta }}" hint-placeholder-val="{{ false }}"><a href="https://docs.google.com/forms/u/0/" target="_blank" style="font-size:14px">Abrir Google Forms para crear la encuesta</a></sc-if>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isResEnc }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:24px;display:flex;flex-direction:column;gap:16px">
+      <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · Figuras con tus datos</div>
+      <div style="font-size:14px;line-height:1.5;color:#4a4757">En Google Forms, abre <b>Respuestas</b>. Para cada pregunta importante, escribe una línea por opción con el formato <b>Opción | cantidad</b>. La figura se arma sola.</div>
+      <sc-for list="{{ charts }}" as="ch" hint-placeholder-count="0">
+        <div style="border:1px solid #dcd5c6;border-radius:6px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:8px;align-items:center"><span style="font:600 14px 'Source Serif 4',Georgia,serif">Figura {{ ch.n }}</span><input value="{{ ch.t }}" onChange="{{ ch.onT }}" placeholder="Horas de sueño en noches de clases" style="flex:1;min-width:0;padding:8px 10px;border:1px solid #cfc7b6;border-radius:5px;font-size:14px;font-style:italic;color:#1c2422"><button onClick="{{ ch.del }}" style="padding:7px 10px;border-radius:5px;border:1px solid #cfc7b6;background:#fff;color:#8a3b12;font-size:13px;cursor:pointer">Eliminar</button></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start">
+            <textarea value="{{ ch.raw }}" onChange="{{ ch.onRaw }}" spellcheck="false" placeholder="Menos de 5 horas | 12&#10;5 a 6 horas | 27&#10;7 a 8 horas | 18&#10;Más de 8 horas | 3" style="min-height:120px;resize:vertical;padding:10px;border:1px solid #cfc7b6;border-radius:5px;font:13.5px/1.55 'IBM Plex Mono',monospace;color:#1c2422"></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ ch.rows }}" as="b" hint-placeholder-count="0">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px;align-items:center;font-size:13px">
+                  <span style="text-align:right;line-height:1.25">{{ b.label }}</span>
+                  <div style="display:flex;align-items:center;gap:6px"><div style="height:16px;background:#4b3d82;border-radius:2px;width:{{ b.w }}"></div><span style="font:12px 'IBM Plex Mono',monospace;white-space:nowrap">{{ b.txt }}</span></div>
+                </div>
+              </sc-for>
+              <div style="font-size:12px;color:#5d5a69">{{ ch.total }}</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+      <button onClick="{{ addChart }}" style="align-self:flex-start;padding:10px 16px;border-radius:6px;border:0;background:#4b3d82;color:#fff;font-weight:600;font-size:14px;cursor:pointer">+ Agregar figura</button>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ hasPrompt }}" hint-placeholder-val="{{ false }}">
+    <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Tutor IA · Prompt para este paso</div>
+        <span style="font-size:13px;color:#5d5a69">Incluye tu tema, objetivos y fuentes</span>
+      </div>
+      <pre style="margin:0;white-space:pre-wrap;word-break:break-word;background:#1f1b2b;color:#ebe7f2;border-radius:6px;padding:18px;font:13.5px/1.6 'IBM Plex Mono',monospace;max-height:300px;overflow:auto">{{ prompt }}</pre>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button onClick="{{ copyPrompt }}" style="padding:10px 16px;border-radius:6px;border:0;background:#4b3d82;color:#fff;font-weight:600;font-size:14px;cursor:pointer" style-hover="background:#3b2f6a">Copiar prompt</button>
+        <sc-for list="{{ aiLinks }}" as="ai" hint-placeholder-count="4"><a href="{{ ai.u }}" target="_blank" style="padding:9px 13px;border-radius:6px;border:1px solid #cfc7b6;background:#fff;font-size:14px;text-decoration:none;color:#1c2422">Abrir {{ ai.n }}</a></sc-for>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Respuesta de la IA (borrador, no va al artículo)</span><textarea value="{{ iaText }}" onChange="{{ onIaText }}" placeholder="Pega aquí lo que te respondió la IA. Léelo, subraya lo útil y verifica los datos." style="min-height:160px;resize:vertical;padding:11px 12px;border:1px dashed #b9b0cc;border-radius:6px;background:#faf9fc;font-size:14px;line-height:1.55;color:#3b3848"></textarea></label>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isWriting }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section style="background:#fffdf8;border:2px solid #4b3d82;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px">
+          <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Construye · {{ ownLabel }}</div>
+          <span style="font-size:13px;color:#5d5a69">Esto es lo que va al artículo</span>
+        </div>
+        <textarea value="{{ ownText }}" onChange="{{ onOwn }}" placeholder="Escribe aquí tu versión con tus propias palabras. Usa el borrador de la IA solo como guía y cita tus fuentes así: (Apellido, año)." style="min-height:320px;resize:vertical;padding:14px 16px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:16px/1.7 'Source Serif 4',Georgia,serif;color:#1c2422"></textarea>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ meters }}" as="mt" hint-placeholder-count="3"><span style="padding:6px 10px;border-radius:5px;background:{{ mt.bg }};color:{{ mt.ink }};font:600 12.5px 'IBM Plex Mono',monospace">{{ mt.t }}</span></sc-for>
+        </div>
+        <div style="font-size:13px;color:#5d5a69">Para subtítulos escribe # al inicio de la línea. Para listas, - al inicio.</div>
+      </section>
+      <sc-if value="{{ isResumen }}" hint-placeholder-val="{{ false }}">
+        <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Palabras clave (3 a 5, separadas por coma)</span><input value="{{ extra.claves }}" onChange="{{ onClaves }}" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Abstract (revisado por ustedes)</span><textarea value="{{ extra.abstract }}" onChange="{{ onAbstract }}" style="min-height:140px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:15px/1.6 'Source Serif 4',Georgia,serif;color:#1c2422"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600">Keywords</span><input value="{{ extra.keywords }}" onChange="{{ onKeywords }}" style="padding:10px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:15px;color:#1c2422"></label>
+        </section>
+      </sc-if>
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Verifica</div>
+        <sc-for list="{{ checks }}" as="c" hint-placeholder-count="3">
+          <button onClick="{{ c.toggle }}" style="display:flex;align-items:center;gap:12px;text-align:left;border:1px solid #e7e1d4;background:{{ c.bg }};border-radius:6px;padding:11px 12px;cursor:pointer;font-size:15px;color:#1c2422">
+            <span style="flex:0 0 20px;height:20px;border-radius:4px;border:2px solid #4b3d82;background:{{ c.box }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ c.mark }}</span>
+            <span>{{ c.label }}</span>
+          </button>
+        </sc-for>
+      </section>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isFinal }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Título final</div>
+        <div style="font-size:14px;line-height:1.5;color:#4a4757">Máximo 20 palabras. Debe decir qué se estudió, en quiénes y dónde. Sin abreviaturas.</div>
+        <textarea value="{{ titulo }}" onChange="{{ onTitulo }}" style="min-height:60px;resize:vertical;padding:11px 12px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font:600 18px/1.4 'Source Serif 4',Georgia,serif;color:#1c2422"></textarea>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span style="font:600 12.5px 'IBM Plex Mono',monospace;color:{{ tituloColor }}">{{ tituloHint }}</span><button onClick="{{ copyTitlePrompt }}" style="padding:7px 12px;border-radius:5px;border:1px solid #4b3d82;background:transparent;color:#4b3d82;font-size:13px;cursor:pointer">Copiar prompt para ideas de título</button></div>
+      </section>
+
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Revisión automática</div>
+        <sc-for list="{{ review }}" as="rv" hint-placeholder-count="6">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee8dc">
+            <span style="flex:0 0 22px;height:22px;border-radius:50%;background:{{ rv.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ rv.mark }}</span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">{{ rv.label }}</span><span style="font-size:13px;color:#5d5a69;line-height:1.45">{{ rv.detail }}</span></div>
+          </div>
+        </sc-for>
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82;margin-top:8px">Revisión manual</div>
+        <sc-for list="{{ manual }}" as="c" hint-placeholder-count="4">
+          <button onClick="{{ c.toggle }}" style="display:flex;align-items:center;gap:12px;text-align:left;border:1px solid #e7e1d4;background:{{ c.bg }};border-radius:6px;padding:10px 12px;cursor:pointer;font-size:15px;color:#1c2422">
+            <span style="flex:0 0 20px;height:20px;border-radius:4px;border:2px solid #4b3d82;background:{{ c.box }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ c.mark }}</span>
+            <span>{{ c.label }}</span>
+          </button>
+        </sc-for>
+      </section>
+
+      <section style="background:#fffdf8;border:1px solid #dcd5c6;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px">
+          <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#4b3d82">Autoevaluación</div>
+          <span style="font:600 15px 'IBM Plex Mono',monospace;color:#4b3d82">{{ rubricTotal }}</span>
+        </div>
+        <sc-for list="{{ rubric }}" as="q" hint-placeholder-count="6">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eee8dc">
+            <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">{{ q.label }}</span><span style="font-size:13px;color:#5d5a69">{{ q.hint }}</span></div>
+            <select value="{{ q.val }}" onChange="{{ q.set }}" style="padding:8px 10px;border:1px solid #cfc7b6;border-radius:6px;background:#fff;font-size:14px;color:#1c2422"><option value="0">Sin evaluar</option><option value="1">1 · Inicial</option><option value="2">2 · En proceso</option><option value="3">3 · Logrado</option><option value="4">4 · Destacado</option></select>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="background:#1f1b2b;color:#ebe7f2;border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 20px 'Source Serif 4',Georgia,serif;color:#fff">Descargar y entregar</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <button onClick="{{ printPdf }}" style="padding:11px 18px;border-radius:6px;border:0;background:#b7a6f0;color:#1f1b2b;font-weight:600;font-size:15px;cursor:pointer">PDF (APA 7)</button>
+          <button onClick="{{ downloadWord }}" style="padding:11px 18px;border-radius:6px;border:1px solid #b7a6f0;background:transparent;color:#ebe7f2;font-weight:600;font-size:15px;cursor:pointer">Word (editable)</button>
+        </div>
+        <div style="font-size:13px;color:#b9b3c7;line-height:1.45">PDF: en la ventana de impresión elige "Guardar como PDF".</div>
+        <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #37314a;padding-top:14px">
+          <span style="font-size:15px;font-weight:600;color:#fff">Entregar al docente</span>
+          <span style="font-size:13px;color:#b9b3c7;line-height:1.45">Guarda el artículo en Word y PDF en el Drive del docente y lo marca como entregado. Pueden volver a entregar si corrigen algo.</span>
+          <button onClick="{{ deliver }}" style="align-self:flex-start;padding:11px 18px;border-radius:6px;border:0;background:#b7a6f0;color:#1f1b2b;font-weight:600;font-size:15px;cursor:pointer">Entregar artículo</button>
+        </div>
+        <button onClick="{{ resetAll }}" style="align-self:flex-start;padding:8px 14px;border-radius:6px;border:1px solid #4a4360;background:transparent;color:#e7b7a0;font-size:13px;cursor:pointer">Empezar un proyecto nuevo</button>
+      </section>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#5d5a69">Vista previa (APA 7, formato estudiante)</div>
+        <div ref="{{ previewRef }}" style="background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 30px rgba(40,30,10,.08);padding:clamp(20px,6vw,72px);overflow-x:auto;min-height:400px"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid #dcd5c6;padding-top:22px">
+    <div><sc-if value="{{ hasPrev }}" hint-placeholder-val="{{ false }}"><button onClick="{{ prev }}" style="padding:11px 18px;border-radius:6px;border:1px solid #cfc7b6;background:#fffdf8;font-size:15px;cursor:pointer;color:#1c2422">← {{ prevLabel }}</button></sc-if></div>
+    <div><sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}"><button onClick="{{ next }}" style="padding:11px 18px;border-radius:6px;border:0;background:#4b3d82;color:#fff;font-weight:600;font-size:15px;cursor:pointer" style-hover="background:#3b2f6a">{{ nextLabel }} →</button></sc-if></div>
+  </div>
+</div>
+</main>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1f1b2b;color:#fff;padding:12px 18px;border-radius:8px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:50;max-width:90vw">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;minFuentes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:10,&quot;min&quot;:3,&quot;max&quot;:30,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Docente&quot;},&quot;maxCoincidencia&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:10,&quot;max&quot;:90,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Docente&quot;},&quot;sheetsUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Docente&quot;}}">
+const LS = 'investigacion-bgu-v1';
+const IAS = [{ n: 'DeepSeek', u: 'https://chat.deepseek.com' }, { n: 'ChatGPT', u: 'https://chatgpt.com' }, { n: 'Gemini', u: 'https://gemini.google.com' }, { n: 'Copilot', u: 'https://copilot.microsoft.com' }];
+const D = () => window.INV_DATA;
+const CFG = () => Object.assign({ sheetsUrl: '', institucion: '', docente: '', asignatura: '', minFuentes: 10, maxCoincidencia: 50 }, window.ARTICULO_CONFIG || {});
+const cut = (s, n) => { s = String(s || '').trim(); return s.length > n ? s.slice(0, n) + '…' : s; };
+const wc = s => String(s || '').split(/\s+/).filter(Boolean).length;
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const today = () => new Date().toISOString().slice(0, 10);
+const genId = () => { const a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s = 'INV-'; for (let i = 0; i < 5; i++) s += a[Math.floor(Math.random() * a.length)]; return s; };
+const BAD_VERBS = ['conocer', 'entender', 'saber', 'aprender', 'comprender'];
+const GOOD_VERBS = ['identificar', 'describir', 'analizar', 'comparar', 'determinar', 'evaluar', 'argumentar', 'establecer', 'caracterizar', 'explicar', 'examinar', 'diagnosticar', 'proponer', 'valorar', 'relacionar', 'contrastar', 'demostrar', 'indagar', 'interpretar', 'sustentar', 'defender', 'estimar', 'medir', 'cuantificar', 'reconocer', 'explorar', 'verificar'];
+
+const RE_PAR = /\(([^()]*[A-ZÁÉÍÓÚÑ][^()]*?\b(?:19|20)\d{2}[a-z]?[^()]*)\)/g;
+const RE_NAR = /([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñü'-]+)(?:\s+(?:y|e)\s+[A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñü'-]+|\s+et al\.)?\s*\((?:19|20)\d{2}[a-z]?(?:,\s*p+\.\s*[\d–-]+)?\)/g;
+function findCites(t) {
+  t = String(t || ''); const names = []; let n = 0, m;
+  RE_PAR.lastIndex = 0; while ((m = RE_PAR.exec(t))) { m[1].split(';').forEach(seg => { const w = seg.match(/[A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñü'-]+/); if (w && /(19|20)\d{2}/.test(seg)) { n++; names.push(w[0]); } }); }
+  RE_NAR.lastIndex = 0; while ((m = RE_NAR.exec(t))) { n++; names.push(m[1]); }
+  return { n, names };
+}
+function shingles(t, k) { const w = norm(t).replace(/[^a-z0-9ñ\s]/g, ' ').split(/\s+/).filter(Boolean); const s = []; for (let i = 0; i + k <= w.length; i++) s.push(w.slice(i, i + k).join(' ')); return s; }
+function coincid(own, ia) { if (!ia || !own) return 0; const a = shingles(own, 6); if (a.length < 3) return 0; const b = new Set(shingles(ia, 6)); return Math.round(a.filter(x => b.has(x)).length / a.length * 100); }
+
+const authList = a => String(a || '').split(';').map(x => x.trim()).filter(Boolean);
+const surname = x => x.split(',')[0].trim();
+function inText(f) { const L = authList(f.autores); const y = (f.anio || '').trim() || 's.f.'; if (!L.length) return { s: '[Autor]', y }; const S = L.length === 1 ? surname(L[0]) : L.length === 2 ? surname(L[0]) + ' y ' + surname(L[1]) : surname(L[0]) + ' et al.'; return { s: S, y }; }
+function apaRef(f, html) {
+  const I = s => html ? '<i>' + esc(s) + '</i>' : s, T = s => html ? esc(s) : s;
+  const L = authList(f.autores);
+  let A = !L.length ? '[Autor]' : L.length === 1 ? L[0] : L.length <= 20 ? L.slice(0, -1).join(', ') + ', y ' + L[L.length - 1] : L.slice(0, 19).join(', ') + ', … ' + L[L.length - 1];
+  A = T(A); const y = (f.anio || '').trim() || 's.f.';
+  const head = A + (/\.$/.test(A) ? ' ' : '. ') + '(' + esc(y) + '). ';
+  const t = (f.titulo || '[Título]').trim(), src = (f.fuente || '').trim(), url = (f.url || '').trim();
+  const u = url ? ' ' + (/^10\./.test(url) ? 'https://doi.org/' + url : url) : '';
+  const p = s => /[.?!]$/.test(s) ? s : s + '.';
+  let r;
+  if (f.tipo === 'articulo') r = head + T(p(t)) + ' ' + I(src || '[Revista]') + (f.vol ? ', ' + I(f.vol) : '') + (f.num ? '(' + T(f.num) + ')' : '') + (f.pags ? ', ' + T(f.pags) : '') + '.' + u;
+  else if (f.tipo === 'tesis') r = head + I(t) + ' [Tesis de grado' + (src ? ', ' + T(src) : '') + '].' + u;
+  else if (f.tipo === 'libro') r = head + I(p(t)) + (src ? ' ' + T(p(src)) : '') + u;
+  else r = head + I(p(t)) + (src && src !== L[0] ? ' ' + T(p(src)) : '') + u;
+  return r.replace(/\.\./g, '.');
+}
+function parseChart(raw) {
+  const rows = String(raw || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => { const m = l.match(/^(.*?)[|:;,\t]\s*(\d+(?:[.,]\d+)?)\s*$/); return m ? { label: m[1].replace(/\|$/, '').trim(), n: parseFloat(m[2].replace(',', '.')) } : null; }).filter(Boolean);
+  const tot = rows.reduce((a, r) => a + r.n, 0) || 1; rows.forEach(r => { r.pct = r.n / tot * 100; }); return { rows, tot: rows.reduce((a, r) => a + r.n, 0) };
+}
+const pctTxt = v => v.toFixed(1).replace('.', ',') + ' %';
+function barSvg(rows) {
+  const W = 620, L = 230, R = 110, H = 34, top = 8, h = top * 2 + rows.length * H; const max = Math.max(1, ...rows.map(r => r.pct));
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${h}" width="${W}" height="${h}" font-family="Times New Roman, serif" font-size="14"><rect width="${W}" height="${h}" fill="#fff"/><line x1="${L}" y1="${top}" x2="${L}" y2="${h - top}" stroke="#000"/>`;
+  rows.forEach((r, i) => { const y = top + i * H, w = (W - L - R) * r.pct / max; s += `<text x="${L - 8}" y="${y + H / 2 + 5}" text-anchor="end">${esc(cut(r.label, 32))}</text><rect x="${L}" y="${y + 7}" width="${Math.max(1, w)}" height="${H - 14}" fill="#555"/><text x="${L + w + 6}" y="${y + H / 2 + 5}">${pctTxt(r.pct)} (${r.n})</text>`; });
+  return s + '</svg>';
+}
+function svgToPng(svg) {
+  return new Promise(res => { try { const el = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement; const vb = el.getAttribute('viewBox').split(/\s+/).map(Number); const im = new Image(); im.onload = () => { try { const c = document.createElement('canvas'); c.width = vb[2] * 2; c.height = vb[3] * 2; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height); res({ u: c.toDataURL('image/png'), w: Math.min(vb[2], 600) }); } catch (e) { res(null); } }; im.onerror = () => res(null); im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); } catch (e) { res(null); } });
+}
+const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<i>$2</i>');
+function md(src, noIndent) {
+  const Ls = String(src || '').replace(/\r/g, '').split('\n'); let o = '', i = 0; const pc = noIndent ? ' class="ni"' : '';
+  const blk = /^\s*(\||#{1,6}\s|[-*•]\s|\d+[.)]\s)/;
+  while (i < Ls.length) {
+    const l = Ls[i];
+    if (/^\s*\|/.test(l)) { let rows = []; while (i < Ls.length && /^\s*\|/.test(Ls[i])) rows.push(Ls[i++]); rows = rows.filter(r => !/^\s*\|?\s*:?-{2,}/.test(r)); o += '<table>' + rows.map((r, ri) => '<tr>' + r.trim().replace(/^\||\|$/g, '').split('|').map(c => ri ? '<td>' + inl(c.trim()) + '</td>' : '<th>' + inl(c.trim()) + '</th>').join('') + '</tr>').join('') + '</table>'; continue; }
+    const h = l.match(/^\s*(#{1,6})\s+(.*)/); if (h) { o += (h[1].length >= 3 ? '<h3>' : '<h2>') + inl(h[2].replace(/\*\*/g, '')) + (h[1].length >= 3 ? '</h3>' : '</h2>'); i++; continue; }
+    if (/^\s*[-*•]\s+/.test(l)) { const it = []; while (i < Ls.length && /^\s*[-*•]\s+/.test(Ls[i])) it.push(Ls[i++].replace(/^\s*[-*•]\s+/, '')); o += '<ul>' + it.map(x => '<li>' + inl(x) + '</li>').join('') + '</ul>'; continue; }
+    if (/^\s*\d+[.)]\s+/.test(l)) { const it = []; while (i < Ls.length && /^\s*\d+[.)]\s+/.test(Ls[i])) it.push(Ls[i++].replace(/^\s*\d+[.)]\s+/, '')); o += '<ol>' + it.map(x => '<li>' + inl(x) + '</li>').join('') + '</ol>'; continue; }
+    if (!l.trim()) { i++; continue; }
+    const p = [Ls[i++]]; while (i < Ls.length && Ls[i].trim() && !blk.test(Ls[i])) p.push(Ls[i++]);
+    o += '<p' + pc + '>' + inl(p.join(' ')) + '</p>';
+  }
+  return o;
+}
+const APA_CSS = `.apa{font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:2;color:#000}
+.apa p{margin:0;text-indent:.5in}.apa p.ni{text-indent:0}
+.apa h1{font-size:12pt;font-weight:bold;text-align:center;margin:0}
+.apa h2{font-size:12pt;font-weight:bold;text-align:left;margin:0}
+.apa h3{font-size:12pt;font-weight:bold;font-style:italic;margin:0}
+.apa .tp{text-align:center}.apa .tp p{text-indent:0}
+.apa .tp .t{font-weight:bold;margin:1.5in 0 1em}
+.apa .ref p{padding-left:.5in;text-indent:-.5in}
+.apa ul,.apa ol{margin:0;padding-left:.75in}
+.apa table{border-collapse:collapse;width:100%;font-size:11pt;line-height:1.4;margin:.5em 0}
+.apa th,.apa td{border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 6px;text-align:left;vertical-align:top}
+.apa figure{margin:.5em 0 1em}.apa figure svg,.apa figure img{max-width:100%;height:auto}
+.apa .pend{color:#999;font-style:italic}
+.apa .pb{page-break-after:always;break-after:page}`;
+
+function blank() {
+  const c = CFG();
+  return { stepK: 'guia', meta: { a1: '', a2: '', paralelo: '', ia: 'DeepSeek', institucion: c.institucion || '', docente: c.docente || '', asignatura: c.asignatura || '', fecha: today() }, tipo: '',
+    tema: { area: 0, idea: '', intereses: '', que: '', quienes: '', donde: '', cuando: '', delimitado: '' }, pregunta: '', obj: { general: '', e1: '', e2: '', e3: '', hip: '' }, kw: { es: '', en: '' },
+    fuentes: [], practica: { para: '', text: '' }, cuestionario: '', charts: [], extra: { claves: '', abstract: '', keywords: '' }, titulo: '',
+    ia: {}, own: {}, checks: {}, ex: {}, manual: [], rubric: [0, 0, 0, 0, 0, 0], sheetUrl: '', cloudId: genId(), cloudAt: '', citeSel: 0 };
+}
+const KEYS = Object.keys(blank());
+function merge(j) { const b = blank(); const o = Object.assign(b, j || {}); ['meta', 'tema', 'obj', 'kw', 'practica', 'extra'].forEach(k => { o[k] = Object.assign(blank()[k], (j || {})[k] || {}); }); if (!o.cloudId) o.cloudId = genId(); return o; }
+function loadLS() { try { const j = JSON.parse(localStorage.getItem(LS) || 'null'); if (j) return merge(j); } catch (e) {} return null; }
+
+class Component extends DCLogic {
+  state = Object.assign(loadLS() || blank(), { toast: '', cloudState: '', recoverCode: '', comentario: '', openSrc: -1 });
+  previewRef = React.createRef();
+
+  componentDidMount() {
+    let n = 0;
+    const wait = () => { if (D() || n++ > 60) { this.forceUpdate(); this._ck = this.cloudKey(); setTimeout(() => this.fetchFeedback(true), 800); return; } setTimeout(wait, 100); };
+    wait();
+  }
+  componentDidUpdate() {
+    clearTimeout(this._sv);
+    this._sv = setTimeout(() => { const o = {}; KEYS.forEach(k => { o[k] = this.state[k]; }); try { localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }, 400);
+    if (this.cloudUrl()) { const ck = this.cloudKey(); if (ck !== this._ck) { this._ck = ck; clearTimeout(this._cs); this._cs = setTimeout(() => this.cloudSave(false), 12000); } }
+    if (this.state.stepK === 'final') this.drawPreview();
+  }
+  flash(t) { this.setState({ toast: t }); clearTimeout(this._ft); this._ft = setTimeout(() => this.setState({ toast: '' }), 2800); }
+  minF() { return Number(this.props.minFuentes ?? CFG().minFuentes) || 10; }
+  maxC() { return Number(this.props.maxCoincidencia ?? CFG().maxCoincidencia) || 50; }
+  cloudUrl() { const u = (this.state.sheetUrl || this.props.sheetsUrl || CFG().sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  cloudKey() { const o = {}; KEYS.forEach(k => { if (k !== 'cloudAt' && k !== 'stepK' && k !== 'citeSel') o[k] = this.state[k]; }); return JSON.stringify(o); }
+
+  steps() { const t = this.state.tipo; return D().SECS.filter(s => !s.types || (t && s.types.includes(t))); }
+  sec(k) { return D().SECS.find(s => s.k === k); }
+  tipoObj() { return D().TIPOS[this.state.tipo] || null; }
+  lessonOf(s) { return s.lessonBy ? s.lessonBy[this.state.tipo] : s.lesson; }
+  exOf(s) { return (s.exBy ? s.exBy[this.state.tipo] : s.ex) || []; }
+  exId(s, i) { return s.k + (s.exBy ? '-' + this.state.tipo : '') + '-' + i; }
+  exOk(s) { return this.exOf(s).every((e, i) => { const r = this.state.ex[this.exId(s, i)]; return r && r.pick === e.a; }); }
+  verified() { return this.state.fuentes.filter(f => f.ver); }
+  srcStats() { const v = this.verified(), y = new Date().getFullYear(); return { total: this.state.fuentes.length, ver: v.length, acad: v.filter(f => f.tipo !== 'web').length, rec: v.filter(f => Number(f.anio) >= y - 5).length }; }
+  chartsData() { return this.state.charts.map((c, i) => Object.assign({ t: c.t, n: i + 1 }, parseChart(c.raw))); }
+  chartsText() { return this.chartsData().filter(c => c.rows.length).map(c => `Figura ${c.n}. ${c.t || '[título]'} (n = ${c.tot})\n` + c.rows.map(r => `- ${r.label}: ${r.n} (${pctTxt(r.pct)})`).join('\n')).join('\n\n'); }
+
+  ownStats(s) {
+    const t = this.state.own[s.k] || '', n = wc(t), ci = findCites(t).n, co = coincid(t, this.state.ia[s.k]);
+    const o = s.own; const wOk = n >= o.min && (!o.max || n <= o.max), cOk = ci >= o.citas, coOk = co <= this.maxC();
+    return { n, ci, co, wOk, cOk, coOk };
+  }
+  isDone(k) {
+    const s = this.state, sec = this.sec(k); if (!sec) return false;
+    if (k === 'guia') return s.stepK !== 'guia';
+    if (k === 'equipo') return !!(s.meta.a1.trim() && s.meta.a2.trim() && s.tipo);
+    if (k === 'final') return false;
+    if (!this.exOk(sec)) return false;
+    if (k === 'tema') return wc(s.tema.delimitado) >= 8;
+    if (k === 'objetivos') return !!(s.obj.general.trim() && s.obj.e1.trim() && s.obj.e2.trim() && s.obj.hip.trim());
+    if (k === 'busqueda') return s.kw.es.split(',').filter(x => x.trim()).length >= 3;
+    if (k === 'fuentes') return this.srcStats().ver >= this.minF();
+    if (k === 'citas') return findCites(s.practica.para).n > 0 && /["“«]/.test(s.practica.text) && /p\.\s*\d/.test(s.practica.text);
+    if (sec.own) {
+      const st = this.ownStats(sec); let ok = st.wOk && st.cOk && st.coOk && (s.checks[k] || []).filter(Boolean).length === 3;
+      if (k === 'problema') ok = ok && wc(s.pregunta) >= 6;
+      if (k === 'resumen') ok = ok && s.extra.claves.trim() && s.extra.abstract.trim();
+      return !!ok;
+    }
+    return true;
+  }
+  progress() { const ks = this.steps().map(s => s.k).filter(k => k !== 'guia' && k !== 'final'); const d = ks.filter(k => this.isDone(k)).length; return { d, n: ks.length, pct: ks.length ? Math.round(d / ks.length * 100) : 0 }; }
+  exScore() { let first = 0, tot = 0; this.steps().forEach(s => this.exOf(s).forEach((e, i) => { tot++; const r = this.state.ex[this.exId(s, i)]; if (r && r.first) first++; })); return first + '/' + tot; }
+  avgCoinc() { const L = this.steps().filter(s => s.own && (this.state.own[s.k] || '').trim()).map(s => this.ownStats(s).co); return L.length ? Math.round(L.reduce((a, b) => a + b, 0) / L.length) : 0; }
+  rubTotal() { return this.state.rubric.reduce((a, b) => a + Number(b || 0), 0) + ' / ' + D().RUB.length * 4; }
+
+  header() {
+    const s = this.state, T = this.tipoObj();
+    let h = 'Actúa como tutor experto en metodología de la investigación y redacción científica con normas APA 7.ª edición. Soy estudiante de 3ro de Bachillerato en Ecuador y estoy aprendiendo a investigar.';
+    h += `\nTIPO DE INVESTIGACIÓN: ${T ? T.label : '[elige el tipo en Equipo y tipo]'}\nTEMA: ${s.tema.delimitado || s.tema.idea || '[define tu tema]'}`;
+    if (s.pregunta.trim()) h += `\nPREGUNTA DE INVESTIGACIÓN: ${s.pregunta.trim()}`;
+    if (s.obj.general.trim()) h += `\nOBJETIVO GENERAL: ${s.obj.general.trim()}`;
+    const e = [s.obj.e1, s.obj.e2, s.obj.e3].filter(x => x.trim()); if (e.length) h += '\nOBJETIVOS ESPECÍFICOS:\n' + e.map((x, i) => `${i + 1}. ${x.trim()}`).join('\n');
+    if (s.obj.hip.trim() && T) h += `\n${T.hipLabel.toUpperCase()}: ${s.obj.hip.trim()}`;
+    return h + '\nREGLAS: responde en español académico claro; NO inventes datos, autores, citas ni referencias; si falta información, dime qué debo buscar.';
+  }
+  promptFor(sec) {
+    const s = this.state, T = this.tipoObj();
+    const x = { idea: s.tema.idea, intereses: s.tema.intereses, tipoLabel: T ? T.label : '[tipo]', hipLabel: T ? T.hipLabel : 'Hipótesis', chartsText: this.chartsText() };
+    const task = sec.taskBy ? sec.taskBy[s.tipo] : sec.task; if (!task) return '';
+    let p = this.header();
+    if (sec.useSrc) { const v = this.verified(); p += '\n\nMIS FUENTES VERIFICADAS (usa solo estas y cítalas en APA 7):\n' + (v.length ? v.map(f => { const c = inText(f); return `- (${c.s}, ${c.y}): ${cut(f.titulo, 90)}. Idea principal: ${cut(f.idea, 220) || '[sin resumen]'}`; }).join('\n') : '[aún no tengo fuentes verificadas]'); }
+    const ctx = (sec.ctx || []).filter(k => (s.own[k] || '').trim()); if (ctx.length) p += '\n\nLO QUE YA ESCRIBÍ:' + ctx.map(k => `\n— ${this.sec(k).label}: ${cut(s.own[k], 700)}`).join('');
+    return p + '\n\n' + task(x);
+  }
+
+  go(k) { this.setState({ stepK: k }); try { window.scrollTo(0, 0); } catch (e) {} }
+  setIn(group, f, v) { this.setState(p => ({ [group]: Object.assign({}, p[group], { [f]: v }) })); }
+  setSrc(i, f, v) { this.setState(p => ({ fuentes: p.fuentes.map((x, j) => j === i ? Object.assign({}, x, { [f]: v }) : x) })); }
+  copy(t, msg) { const ok = () => this.flash(msg || 'Prompt copiado. Pégalo en ' + this.state.meta.ia); const fb = () => { const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (e) { this.flash('Selecciona el texto y cópialo manualmente'); } a.remove(); }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb(); }
+  download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  fileName(ext) { return (this.state.titulo || this.state.tema.delimitado || 'articulo').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/gi, '_').slice(0, 60) + ext; }
+  authors() { return [this.state.meta.a1, this.state.meta.a2].map(x => x.trim()).filter(Boolean).map(x => { const p = x.split(','); return p.length > 1 ? p[1].trim() + ' ' + p[0].trim() : x; }); }
+  fechaLarga(f) { try { return new Date(f + 'T12:00').toLocaleDateString('es-EC', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return f; } }
+
+  citeCheck() {
+    const s = this.state, all = this.steps().filter(x => x.own).map(x => s.own[x.k] || '').join('\n');
+    const cited = [...new Set(findCites(all).names.map(norm))];
+    const v = this.verified(), firsts = v.map(f => norm(surname(authList(f.autores)[0] || '')));
+    const missing = cited.filter(c => !firsts.some(f => f && (f === c || f.startsWith(c) || c.startsWith(f.split(' ')[0]))));
+    const uncited = v.filter((f, i) => firsts[i] && !cited.some(c => firsts[i] === c || firsts[i].startsWith(c) || c.startsWith(firsts[i].split(' ')[0]))).map(f => inText(f).s);
+    return { missing, uncited };
+  }
+
+  async buildArticle(mode) {
+    const s = this.state, T = this.tipoObj(), m = s.meta, own = k => (s.own[k] || '').trim();
+    const B = k => own(k) ? md(own(k)) : '<p class="pend">[Sección pendiente]</p>';
+    const title = esc(s.titulo || s.tema.delimitado || 'Título del artículo');
+    let h = `<div class="tp pb"><p class="t">${title}</p><p>${esc(this.authors().join(' y ') || 'Autores')}</p><p>${esc(m.institucion)}</p><p>3ro BGU${m.paralelo ? ' «' + esc(m.paralelo) + '»' : ''}${m.asignatura ? ' · ' + esc(m.asignatura) : ''}</p><p>${esc(m.docente)}</p><p>${esc(this.fechaLarga(m.fecha))}</p></div>`;
+    h += `<div class="pb"><h1>Resumen</h1>${own('resumen') ? md(own('resumen'), true) : '<p class="pend ni">[Resumen pendiente]</p>'}<p><i>Palabras clave:</i> ${esc(s.extra.claves)}</p><br><h1>Abstract</h1>${s.extra.abstract.trim() ? md(s.extra.abstract, true) : '<p class="pend ni">[Abstract pendiente]</p>'}<p><i>Keywords:</i> ${esc(s.extra.keywords)}</p></div>`;
+    h += `<h1>${title}</h1>${B('intro')}<h2>Planteamiento del problema</h2>${B('problema')}<h2>Pregunta y objetivos de investigación</h2>`;
+    h += `<p>${esc(s.pregunta) || '<span class="pend">[Pregunta pendiente]</span>'}</p><p><b>Objetivo general:</b> ${esc(s.obj.general)}</p><p class="ni"><b>Objetivos específicos:</b></p><ol>${[s.obj.e1, s.obj.e2, s.obj.e3].filter(x => x.trim()).map(x => '<li>' + esc(x) + '</li>').join('')}</ol>`;
+    if (T && s.obj.hip.trim()) h += `<p><b>${esc(T.hipLabel)}:</b> ${esc(s.obj.hip)}</p>`;
+    h += `<h1>Marco teórico</h1>${B('marco')}`;
+    if (s.tipo === 'ensayo') {
+      h += `<h1>Desarrollo argumentativo</h1>${B('argumentos')}<h1>Contraargumentos y refutación</h1>${B('contra')}`;
+    } else {
+      h += `<h1>Metodología</h1>${B('metodo')}<h1>Resultados</h1>${B('resultados')}`;
+      if (s.tipo === 'encuesta') for (const c of this.chartsData().filter(c => c.rows.length)) {
+        let fig = barSvg(c.rows); if (mode === 'png') { const p = await svgToPng(fig); fig = p ? `<img src="${p.u}" width="${p.w}">` : ''; }
+        h += `<figure><p class="ni"><b>Figura ${c.n}</b></p><p class="ni"><i>${esc(c.t || 'Título de la figura')}</i></p>${fig}<p class="ni"><i>Nota.</i> Elaboración propia a partir de la encuesta aplicada (n = ${c.tot}).</p></figure>`;
+      }
+      h += `<h1>Discusión</h1>${B('discusion')}`;
+    }
+    h += `<h1>Conclusiones y recomendaciones</h1>${B('conclusiones')}`;
+    h += `<h1>Declaración de uso de inteligencia artificial</h1><p>En la elaboración de este artículo se utilizó ${esc(m.ia)} como tutor para orientar la estructura de las secciones y obtener borradores de apoyo. Los autores verificaron todas las fuentes y redactaron la versión final con sus propias palabras; la coincidencia promedio con los borradores de la IA fue de ${this.avgCoinc()} %.</p>`;
+    const refs = this.verified().map(f => apaRef(f, true)).sort((a, b) => norm(a).localeCompare(norm(b)));
+    h += `<div class="pb"></div><h1>Referencias</h1><div class="ref">${refs.length ? refs.map(r => '<p>' + r + '</p>').join('') : '<p class="pend">[Sin fuentes verificadas]</p>'}</div>`;
+    if (s.tipo !== 'ensayo' && s.cuestionario.trim()) h += `<div class="pb"></div><h1>Anexo A</h1><h1>${s.tipo === 'encuesta' ? 'Cuestionario aplicado' : 'Guía de entrevista'}</h1>${md(s.cuestionario, true)}`;
+    return h;
+  }
+  drawPreview() {
+    const el = this.previewRef.current; if (!el) return;
+    const s = this.state, key = JSON.stringify([s.own, s.meta, s.tema, s.pregunta, s.obj, s.fuentes, s.charts, s.extra, s.titulo, s.cuestionario, s.tipo]);
+    if (el._k === key) return; el._k = key; clearTimeout(this._tp);
+    this._tp = setTimeout(async () => { const h = await this.buildArticle('svg'); el.innerHTML = '<style>' + APA_CSS + '.apa .pb{border-bottom:1px dashed #bbb;margin-bottom:28px;padding-bottom:28px}.apa .tp .t{margin-top:40px}</style><div class="apa">' + h + '</div>'; }, 300);
+  }
+  docHtml(body, word) {
+    const head = word ? "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" : '<!doctype html><html lang="es">';
+    const css = APA_CSS + (word ? '@page{margin:1in}body{font-family:"Times New Roman";font-size:12pt;line-height:200%}' : '@page{size:letter;margin:1in;@top-right{content:counter(page);font-family:"Times New Roman";font-size:12pt}}body{margin:0}');
+    return `${head}<head><meta charset="utf-8"><title>${esc(this.state.titulo || 'Artículo')}</title><style>${css}</style></head><body><div class="apa">${body}</div></body></html>`;
+  }
+  async printPdf() { const w = window.open('', '_blank'); if (!w) { this.flash('Permite las ventanas emergentes para generar el PDF'); return; } w.document.write('<p style="font-family:sans-serif;padding:20px">Preparando el artículo…</p>'); const h = await this.buildArticle('svg'); w.document.open(); w.document.write(this.docHtml(h, false)); w.document.close(); setTimeout(() => { w.focus(); w.print(); }, 900); }
+  async downloadWord() { this.flash('Generando documento…'); const h = await this.buildArticle('png'); this.download(new Blob(['\ufeff' + this.docHtml(h, true)], { type: 'application/msword' }), this.fileName('.doc')); }
+
+  async cloudSave(withDoc) {
+    const url = this.cloudUrl(); if (!url) { if (withDoc) this.flash('Falta la URL del docente (paso Equipo y tipo o config.js)'); return; }
+    const s = this.state, p = this.progress(), T = this.tipoObj(), o = {}; KEYS.forEach(q => { o[q] = s[q]; });
+    this.setState({ cloudState: 'saving' }); if (withDoc) this.flash('Generando y entregando el artículo…');
+    const all = this.steps().filter(x => x.own).map(x => s.own[x.k] || '').join(' ');
+    const payload = { id: s.cloudId, paralelo: s.meta.paralelo, autores: [s.meta.a1, s.meta.a2].filter(x => x.trim()).join('; '), tipo: T ? T.short : '', titulo: s.titulo || s.tema.delimitado, progreso: p.pct + '%', secciones: p.d + '/' + p.n, ejercicios: this.exScore(), fuentes: this.srcStats().ver, coincidencia: this.avgCoinc() + '%', rubrica: this.rubTotal(), palabras: wc(all), json: JSON.stringify(o), html: '' };
+    try {
+      if (withDoc) payload.html = this.docHtml(await this.buildArticle('png'), true);
+      await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      this.setState({ cloudState: 'ok', cloudAt: new Date().toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' }) });
+      if (withDoc) this.flash('Entregado ✓ El docente recibió Word y PDF en su Drive');
+    } catch (e) { this.setState({ cloudState: 'err' }); this.flash('No se pudo guardar en la nube. Revisa tu conexión.'); }
+  }
+  async getCloud(id) { const url = this.cloudUrl(); const r = await fetch(url + (url.includes('?') ? '&' : '?') + 'id=' + encodeURIComponent(id)); return JSON.parse(await r.text()); }
+  async fetchFeedback(silent) {
+    if (!this.cloudUrl()) return;
+    try { const r = await this.getCloud(this.state.cloudId); const c = (r && r.comentario) || ''; this.setState({ comentario: c }); if (!silent) this.flash(c ? 'Hay un comentario del docente arriba' : 'Aún no hay comentarios del docente'); } catch (e) { if (!silent) this.flash('No se pudo consultar. Revisa tu conexión.'); }
+  }
+  async recover() {
+    const code = this.state.recoverCode.trim().toUpperCase();
+    if (!this.cloudUrl()) { this.flash('Falta la URL del docente'); return; } if (!code) { this.flash('Escribe el código del proyecto'); return; }
+    try { const r = await this.getCloud(code); if (!r || !r.proyecto) throw new Error('no'); if (!window.confirm('Se reemplazará el avance actual por el proyecto ' + code + '. ¿Continuar?')) return; this.setState(Object.assign(merge(r.proyecto), { cloudId: code, recoverCode: '', comentario: r.comentario || '', sheetUrl: this.state.sheetUrl })); this.flash('Proyecto recuperado ✓'); }
+    catch (e) { this.flash('No se encontró ese código o no hay conexión'); }
+  }
+
+  renderVals() {
+    if (!D()) return { steps: [], cur: { num: '01', label: 'Cargando…', desc: '', fase: '' }, total: '—', isGuide: false, hasNext: false };
+    const s = this.state, st = this.steps(); let idx = st.findIndex(x => x.k === s.stepK); if (idx < 0) idx = 0;
+    const sec = st[idx], k = sec.k, T = this.tipoObj(), pr = this.progress(), less = this.lessonOf(sec), exs = this.exOf(sec), ss = this.srcStats();
+    const vIn = (g, f) => e => this.setIn(g, f, e.target.value);
+    const hasPrompt = !!(sec.task || (sec.taskBy && sec.taskBy[s.tipo]));
+    const meter = (t, ok, neutral) => ({ t, bg: neutral ? '#eeebf3' : ok ? '#e3f1e8' : '#fbe9df', ink: neutral ? '#4a4757' : ok ? '#1e6a3a' : '#9a3d12' });
+    let meters = [];
+    if (sec.own) { const o = sec.own, x = this.ownStats(sec); meters = [meter(`${x.n} palabras · ${o.max ? o.min + '–' + o.max : 'mín. ' + o.min}`, x.wOk), o.citas ? meter(`${x.ci} citas · mín. ${o.citas}`, x.cOk) : meter(`${x.ci} citas`, true, true), meter(`Coincidencia con la IA: ${x.co} % · máx. ${this.maxC()} %`, x.coOk, !(s.ia[k] || '').trim())]; }
+    const chk = s.checks[k] || [];
+    const vsel = this.verified(), csel = vsel[Math.min(s.citeSel, vsel.length - 1)];
+    const cs = csel ? inText(csel) : null;
+    const objs = [s.obj.general, s.obj.e1, s.obj.e2, s.obj.e3].filter(x => x.trim()), fv = objs.map(x => norm(x.trim().split(/\s+/)[0]));
+    const bad = fv.filter(v => BAD_VERBS.includes(v)), unk = fv.filter(v => !BAD_VERBS.includes(v) && !GOOD_VERBS.includes(v) && !/(ar|er|ir)$/.test(v));
+    const pq = s.pregunta.trim(), pqOk = /^¿.*\?$/.test(pq) && wc(pq) >= 8;
+    const paraC = findCites(s.practica.para).n > 0, txtOk = /["“«]/.test(s.practica.text) && /p\.\s*\d/.test(s.practica.text);
+    const kws = s.kw.es.split(',').map(x => x.trim()).filter(Boolean), q = kws.map(w => /\s/.test(w) ? `"${w}"` : w).join(' AND '), kEn = s.kw.en.split(',').map(x => x.trim()).filter(Boolean).map(w => /\s/.test(w) ? `"${w}"` : w).join(' AND ');
+    const E = encodeURIComponent, y5 = new Date().getFullYear() - 8;
+    const cc = this.citeCheck(), tW = wc(s.titulo);
+    const area = D().AREAS[s.tema.area] || D().AREAS[0];
+    const allSec = st.filter(x => x.k !== 'guia' && x.k !== 'final'), doneN = allSec.filter(x => this.isDone(x.k)).length;
+    const resW = wc(s.own.resumen), avg = this.avgCoinc();
+    const rv = (label, ok, detail, warn) => ({ label, detail, bg: ok ? '#2f8a5b' : warn ? '#d49a2a' : '#c4553a', mark: ok ? '✓' : '!' });
+    return {
+      steps: st.map((x, j) => { const d = this.isDone(x.k); return { num: String(j + 1).padStart(2, '0'), label: x.label, go: () => this.go(x.k), bg: j === idx ? '#2c2640' : 'transparent', dot: j === idx ? '#f4f1ea' : d ? '#b7a6f0' : '#37314a', dotInk: j === idx || d ? '#1f1b2b' : '#c9c3d6' }; }),
+      progressLabel: pr.d + ' / ' + pr.n, progressPct: pr.pct + '%', total: String(st.length).padStart(2, '0'), tipoShort: T ? T.label : 'Tipo de investigación sin elegir',
+      cur: { num: String(idx + 1).padStart(2, '0'), label: sec.label, desc: sec.desc, fase: sec.fase },
+      isGuide: k === 'guia', isEquipo: k === 'equipo', isTema: k === 'tema', isProblema: k === 'problema', isObjetivos: k === 'objetivos', isBusqueda: k === 'busqueda', isFuentes: k === 'fuentes', isCitas: k === 'citas', isMetodo: k === 'metodo', isResEnc: k === 'resultados' && s.tipo === 'encuesta', isResumen: k === 'resumen', isFinal: k === 'final', isEncuesta: s.tipo === 'encuesta',
+      appsScript: D().APPS_SCRIPT,
+      hasComentario: !!s.comentario, comentario: s.comentario,
+      meta: s.meta, onA1: vIn('meta', 'a1'), onA2: vIn('meta', 'a2'), onParalelo: vIn('meta', 'paralelo'), onIa: vIn('meta', 'ia'), onInstitucion: vIn('meta', 'institucion'), onDocente: vIn('meta', 'docente'), onAsignatura: vIn('meta', 'asignatura'), onFecha: vIn('meta', 'fecha'),
+      tipos: Object.keys(D().TIPOS).map(key => { const t = D().TIPOS[key], on = s.tipo === key; return { label: t.label, enfoque: t.enfoque, desc: t.desc, ej: t.ej, bg: on ? '#ece8f6' : '#fffdf8', border: on ? '#4b3d82' : '#dcd5c6', pick: () => this.setState({ tipo: key }) }; }),
+      showUrlField: !(this.props.sheetsUrl || CFG().sheetsUrl), sheetUrl: s.sheetUrl, onSheetUrl: e => this.setState({ sheetUrl: e.target.value }),
+      cloudId: s.cloudId, hasCloud: !!this.cloudUrl(), cloudNow: () => this.cloudSave(false), fetchFeedback: () => this.fetchFeedback(false), recoverCode: s.recoverCode, onRecoverCode: e => this.setState({ recoverCode: e.target.value }), recover: () => this.recover(),
+      cloudDot: !this.cloudUrl() ? '#6b6578' : s.cloudState === 'err' ? '#e07a5f' : s.cloudState === 'saving' ? '#d49a2a' : '#b7a6f0',
+      cloudLabel: !this.cloudUrl() ? 'Nube sin configurar' : s.cloudState === 'saving' ? 'Guardando en la nube…' : s.cloudState === 'err' ? 'Error al guardar' : s.cloudAt ? 'En la nube · ' + s.cloudAt : 'Nube conectada',
+      hasLesson: !!less, lesson: less ? { t: less.t, p: less.p || [], pts: less.pts || [], ej: less.ej || '', hasEj: !!less.ej } : { t: '', p: [], pts: [], ej: '', hasEj: false },
+      hasEx: exs.length > 0,
+      exs: exs.map((e, i) => { const id = this.exId(sec, i), r = s.ex[id]; return { q: e.q, hasFb: !!r, fb: r ? (r.pick === e.a ? e.fb[0] : e.fb[1] + ' Intenta de nuevo.') : '', fbColor: r && r.pick === e.a ? '#1e6a3a' : '#9a3d12',
+        opts: e.o.map((t, j) => { const picked = r && r.pick === j; return { t, bg: picked ? (j === e.a ? '#e3f1e8' : '#fbe9df') : '#fff', border: picked ? (j === e.a ? '#2f8a5b' : '#c4553a') : '#dcd5c6', pick: () => this.setState(p => { const prev = p.ex[id]; return { ex: Object.assign({}, p.ex, { [id]: { pick: j, first: prev ? prev.first : j === e.a } }) }; }) }; }) }; }),
+      areas: D().AREAS.map((a, i) => ({ n: a.n, bg: i === s.tema.area ? '#4b3d82' : '#fff', ink: i === s.tema.area ? '#fff' : '#1c2422', border: i === s.tema.area ? '#4b3d82' : '#cfc7b6', pick: () => this.setIn('tema', 'area', i) })),
+      topics: area.t.map(t => ({ t: t[0], tipo: 'Recomendado: ' + D().TIPOS[t[1]].short, pick: () => { this.setIn('tema', 'idea', t[0]); this.flash('Tema copiado a «Su idea». Ahora delimítenlo.'); } })),
+      tema: s.tema, onIdea: vIn('tema', 'idea'), onIntereses: vIn('tema', 'intereses'), onQue: vIn('tema', 'que'), onQuienes: vIn('tema', 'quienes'), onDonde: vIn('tema', 'donde'), onCuando: vIn('tema', 'cuando'), onDelimitado: vIn('tema', 'delimitado'),
+      armarTema: () => { const t = s.tema; if (!t.que.trim()) { this.flash('Completen al menos «¿Qué aspecto?»'); return; } this.setIn('tema', 'delimitado', [t.que.trim(), t.quienes.trim() && 'en ' + t.quienes.trim(), t.donde.trim() && 'de ' + t.donde.trim(), t.cuando.trim()].filter(Boolean).join(', ').replace(/, en /, ' en ').replace(/, de /, ' de ')); },
+      pregunta: s.pregunta, onPregunta: e => this.setState({ pregunta: e.target.value }), pregColor: !pq ? '#5d5a69' : pqOk ? '#1e6a3a' : '#9a5a00', pregHint: !pq ? 'Escríbanla entre signos ¿ ? Debe incluir qué, en quiénes y dónde.' : pqOk ? '✓ Tiene formato de pregunta y suficiente detalle' : 'Revisen: entre ¿ ? y con al menos 8 palabras (qué, quiénes, dónde).',
+      obj: s.obj, onObjG: vIn('obj', 'general'), onObjE1: vIn('obj', 'e1'), onObjE2: vIn('obj', 'e2'), onObjE3: vIn('obj', 'e3'), onHip: vIn('obj', 'hip'),
+      hipLabel: T ? T.hipLabel : 'Hipótesis / tesis', hipHelp: T ? T.hipHelp : 'Primero elijan el tipo de investigación.', hipPh: T ? T.hipPh : '',
+      verbColor: bad.length ? '#9a3d12' : objs.length ? '#1e6a3a' : '#5d5a69', verbHint: !objs.length ? 'Cada objetivo empieza con un verbo en infinitivo.' : bad.length ? '✗ Cambien estos verbos (no se pueden medir): ' + bad.join(', ') : unk.length ? 'Revisen que cada objetivo empiece con un verbo en infinitivo.' : '✓ Los objetivos empiezan con verbos adecuados',
+      kw: s.kw, onKwEs: vIn('kw', 'es'), onKwEn: vIn('kw', 'en'), searchEs: q || 'Escriban sus palabras clave arriba',
+      searchLinks: q ? [{ n: 'Google Académico', u: 'https://scholar.google.com/scholar?as_ylo=' + y5 + '&q=' + E(q) }, { n: 'Google Académico (inglés)', u: 'https://scholar.google.com/scholar?as_ylo=' + y5 + '&q=' + E(kEn || q) }, { n: 'SciELO', u: 'https://search.scielo.org/?lang=es&q=' + E(kws.join(' ')) }, { n: 'Redalyc', u: 'https://www.redalyc.org/busquedaArticuloFiltros.oa?q=' + E(kws.join(' ')) }, { n: 'Dialnet', u: 'https://dialnet.unirioja.es/buscar/documentos?querysDismax.DOCUMENTAL_TODO=' + E(kws.join(' ')) }, { n: 'La Referencia', u: 'https://www.lareferencia.info/vufind/Search/Results?lookfor=' + E(kws.join(' ')) }] : [],
+      srcStats: `${ss.ver}/${this.minF()} verificadas · ${ss.acad} académicas · ${ss.rec} de los últimos 5 años`, srcColor: ss.ver >= this.minF() ? '#1e6a3a' : '#9a5a00',
+      fuentes: s.fuentes.map((f, i) => { const open = s.openSrc === i, on = (fld) => e => this.setSrc(i, fld, e.target.value); const url = (f.url || '').trim();
+        return { num: String(i + 1).padStart(2, '0'), ref: apaRef(f, false), open, toggle: () => this.setState({ openSrc: open ? -1 : i }), toggleLabel: open ? 'Cerrar' : 'Editar', border: f.ver ? '#9fcfb2' : '#dcd5c6',
+          status: f.ver ? '✓ Verificada · ' + inText(f).s + ', ' + inText(f).y : 'Sin verificar', stColor: f.ver ? '#1e6a3a' : '#9a5a00',
+          tipo: f.tipo, autores: f.autores, anio: f.anio, titulo: f.titulo, fuente: f.fuente, vol: f.vol, num2: f.num, pags: f.pags, url: f.url, idea: f.idea, cita: f.cita, pag: f.pag, isArt: f.tipo === 'articulo',
+          fuenteLabel: { articulo: 'Nombre de la revista', libro: 'Editorial', tesis: 'Universidad', informe: 'Institución que publica', web: 'Nombre del sitio web' }[f.tipo] || 'Fuente',
+          onTipo: on('tipo'), onAutores: on('autores'), onAnio: on('anio'), onTitulo: on('titulo'), onFuente: on('fuente'), onVol: on('vol'), onNum: on('num'), onPags: on('pags'), onUrl: on('url'), onIdea: on('idea'), onCita: on('cita'), onPag: on('pag'),
+          hasUrl: !!url, href: /^10\./.test(url) ? 'https://doi.org/' + url : url,
+          verBg: f.ver ? '#4b3d82' : '#fff', verInk: f.ver ? '#fff' : '#4b3d82', verLabel: f.ver ? '✓ Verificada: la abrí y la leí' : 'Marcar como verificada',
+          onVer: () => { if (!f.ver && (!f.autores.trim() || !f.anio.trim() || !f.titulo.trim() || !f.idea.trim())) { this.flash('Completen autor, año, título e idea principal antes de verificar'); return; } this.setSrc(i, 'ver', !f.ver); },
+          del: () => { if (window.confirm('¿Eliminar esta fuente?')) this.setState(p => ({ fuentes: p.fuentes.filter((_, j) => j !== i), openSrc: -1 })); } }; }),
+      addFuente: () => this.setState(p => ({ fuentes: p.fuentes.concat([{ tipo: 'articulo', autores: '', anio: '', titulo: '', fuente: '', vol: '', num: '', pags: '', url: '', idea: '', cita: '', pag: '', ver: false }]), openSrc: p.fuentes.length })),
+      noVerified: !vsel.length,
+      citeSrcs: vsel.map((f, i) => { const on = i === Math.min(s.citeSel, vsel.length - 1); const c = inText(f); return { n: c.s + ', ' + c.y, bg: on ? '#4b3d82' : '#fff', ink: on ? '#fff' : '#1c2422', border: on ? '#4b3d82' : '#cfc7b6', pick: () => this.setState({ citeSel: i }) }; }),
+      citeForms: cs ? [['Parentética', `(${cs.s}, ${cs.y})`], ['Narrativa', `${cs.s} (${cs.y})`], ['Textual corta', csel.cita ? `“${cut(csel.cita, 160)}” (${cs.s}, ${cs.y}, p. ${csel.pag || 'xx'})` : `“…” (${cs.s}, ${cs.y}, p. xx)`], ['Referencia APA', apaRef(csel, false)]].map(r => ({ k: r[0], v: r[1], copy: () => this.copy(r[1], 'Copiado') })) : [],
+      practica: s.practica, onPara: vIn('practica', 'para'), onTextual: vIn('practica', 'text'),
+      paraColor: !s.practica.para ? '#5d5a69' : paraC ? '#1e6a3a' : '#9a5a00', paraHint: !s.practica.para ? 'Debe incluir una cita (Apellido, año) o Apellido (año).' : paraC ? '✓ Cita detectada' : 'No se detecta la cita. Usen (Apellido, año).',
+      textColor: !s.practica.text ? '#5d5a69' : txtOk ? '#1e6a3a' : '#9a5a00', textHint: !s.practica.text ? 'Debe llevar comillas y la página: p. 15' : txtOk ? '✓ Comillas y página detectadas' : 'Falta: comillas o la página (p. 15).',
+      instrLabel: s.tipo === 'caso' ? 'Guía de entrevista y observación' : 'Cuestionario de la encuesta', instrHelp: s.tipo === 'caso' ? 'Escriban las preguntas de la entrevista (abiertas) y qué van a observar. Se incluirá como Anexo A.' : 'Escriban las preguntas con sus opciones. Luego créenlas en Google Forms y compartan el enlace con los participantes. Se incluirá como Anexo A.',
+      cuestionario: s.cuestionario, onCuestionario: e => this.setState({ cuestionario: e.target.value }),
+      charts: this.chartsData().map((c, i) => { const max = Math.max(1, ...c.rows.map(r => r.pct)); return { n: c.n, t: c.t, raw: s.charts[i].raw, onT: e => this.setState(p => ({ charts: p.charts.map((x, j) => j === i ? Object.assign({}, x, { t: e.target.value }) : x) })), onRaw: e => this.setState(p => ({ charts: p.charts.map((x, j) => j === i ? Object.assign({}, x, { raw: e.target.value }) : x) })), del: () => this.setState(p => ({ charts: p.charts.filter((_, j) => j !== i) })), rows: c.rows.map(r => ({ label: r.label, w: Math.max(2, r.pct / max * 100) + '%', txt: pctTxt(r.pct) + ' (' + r.n + ')' })), total: c.rows.length ? 'Total de respuestas: ' + c.tot : 'Escriban los datos a la izquierda' }; }),
+      addChart: () => this.setState(p => ({ charts: p.charts.concat([{ t: '', raw: '' }]) })),
+      hasPrompt, prompt: hasPrompt ? this.promptFor(sec) : '', copyPrompt: () => this.copy(this.promptFor(sec)), aiLinks: IAS,
+      iaText: s.ia[k] || '', onIaText: e => { const v = e.target.value; this.setState(p => ({ ia: Object.assign({}, p.ia, { [k]: v }) })); },
+      isWriting: !!sec.own, ownLabel: sec.own ? 'Su versión: ' + sec.own.label : '', ownText: s.own[k] || '', onOwn: e => { const v = e.target.value; this.setState(p => ({ own: Object.assign({}, p.own, { [k]: v }) })); }, meters,
+      extra: s.extra, onClaves: vIn('extra', 'claves'), onAbstract: vIn('extra', 'abstract'), onKeywords: vIn('extra', 'keywords'),
+      checks: D().CHK.map((label, j) => ({ label, bg: chk[j] ? '#f1eef8' : '#fff', box: chk[j] ? '#4b3d82' : '#fff', mark: chk[j] ? '✓' : '', toggle: () => this.setState(p => { const a = (p.checks[k] || [false, false, false]).slice(); a[j] = !a[j]; return { checks: Object.assign({}, p.checks, { [k]: a }) }; }) })),
+      titulo: s.titulo || '', onTitulo: e => this.setState({ titulo: e.target.value }),
+      tituloHint: !s.titulo.trim() ? 'Sin título final (se usará el tema delimitado)' : tW > 20 ? `${tW} palabras: acórtenlo` : `✓ ${tW} palabras`, tituloColor: !s.titulo.trim() || tW > 20 ? '#9a5a00' : '#1e6a3a',
+      copyTitlePrompt: () => this.copy(this.header() + '\n\nTAREA: Propón 5 títulos para mi artículo (máximo 20 palabras cada uno) que indiquen qué se estudió, en quiénes y dónde. Explica cuál es el mejor y por qué.'),
+      review: [rv('Secciones completas', doneN === allSec.length, `${doneN} de ${allSec.length}. ` + (doneN === allSec.length ? '' : 'Pendientes: ' + allSec.filter(x => !this.isDone(x.k)).map(x => x.label).join(', '))),
+        rv('Fuentes verificadas', ss.ver >= this.minF(), `${ss.ver} de ${this.minF()} mínimas · ${ss.rec} de los últimos 5 años`),
+        rv('Citas con referencia', !cc.missing.length, cc.missing.length ? 'Estos apellidos se citan pero no están en la matriz verificada: ' + cc.missing.join(', ') : 'Todas las citas del texto tienen su referencia'),
+        rv('Referencias citadas', !cc.uncited.length, cc.uncited.length ? 'Estas fuentes no se citan en el texto: ' + cc.uncited.join('; ') : 'Todas las referencias se citan en el texto', true),
+        rv('Resumen de 150 a 250 palabras', resW >= 150 && resW <= 250, resW + ' palabras'),
+        rv('Redacción propia', avg <= this.maxC(), `Coincidencia promedio con la IA: ${avg} % (máx. ${this.maxC()} %)`)],
+      manual: D().MANUAL.map((label, j) => ({ label, bg: s.manual[j] ? '#f1eef8' : '#fff', box: s.manual[j] ? '#4b3d82' : '#fff', mark: s.manual[j] ? '✓' : '', toggle: () => this.setState(p => { const a = p.manual.slice(); a[j] = !a[j]; return { manual: a }; }) })),
+      rubric: D().RUB.map((r, j) => ({ label: r[0], hint: r[1], val: String(s.rubric[j] || 0), set: e => { const v = Number(e.target.value); this.setState(p => { const a = p.rubric.slice(); a[j] = v; return { rubric: a }; }); } })),
+      rubricTotal: this.rubTotal(), previewRef: this.previewRef,
+      printPdf: () => this.printPdf(), downloadWord: () => this.downloadWord(), deliver: () => this.cloudSave(true),
+      saveJson: () => { const o = {}; KEYS.forEach(x => { o[x] = s[x]; }); this.download(new Blob([JSON.stringify(o)], { type: 'application/json' }), this.fileName('.json')); },
+      loadJson: e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return; const r = new FileReader(); r.onload = () => { try { this.setState(merge(JSON.parse(r.result))); this.flash('Avance cargado ✓'); } catch (er) { this.flash('Archivo no válido'); } }; r.readAsText(f); },
+      resetAll: () => { if (window.confirm('¿Borrar todo y empezar un proyecto nuevo? Descarguen antes su avance si lo necesitan.')) this.setState(Object.assign(blank(), { sheetUrl: s.sheetUrl, comentario: '' })); },
+      hasPrev: idx > 0, prevLabel: idx > 0 ? st[idx - 1].label : '', prev: () => this.go(st[idx - 1].k),
+      hasNext: idx < st.length - 1, nextLabel: idx < st.length - 1 ? st[idx + 1].label : '', next: () => this.go(st[idx + 1].k),
+      toast: s.toast, hasToast: !!s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
