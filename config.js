@@ -1,7 +1,7 @@
 // CONFIGURACIÓN DEL DOCENTE — edita solo los valores entre comillas o los números.
 window.ARTICULO_CONFIG = {
   // URL de la aplicación web de Google Apps Script (termina en /exec)
-  sheetsUrl: 'https://script.google.com/macros/s/AKfycbw5E4kuCDitfTdk9rNoiyzwuKf4gH3hU3xlT4a9_eLNMb6EbxV0AyY-IX1uR0TUNV1N2g/exec',
+  sheetsUrl: 'https://script.google.com/macros/s/AKfycbxoGVBeLEsi_i_m8nEG93GIbagE7nnYMdh5PX7SbyqKUMSkKdJzF0K1Xq_KfzkUzybcZA/exec',
   institucion: '',
   docente: '',
   asignatura: 'Proyecto de investigación',
