@@ -11,8 +11,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="./config.js"></script>
+<script src="./ejemplo9.js"></script>
 <style>html,body{margin:0;background:#f3f4f8;color:#0a1a3a;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#14306b}input,textarea,select,button{font-family:inherit}</style>
 </helmet>
+<sc-if value="{{ verVista }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:50;overflow:auto;background:#f3f4f8">{{ vista }}<div style="position:fixed;top:12px;right:14px;z-index:51"><button onClick="{{ tClase }}" style="background:#f6d43a;color:#0a1a3a;border:none;border-radius:8px;font-family:'Archivo Black',sans-serif;font-size:15px;padding:10px 14px;cursor:pointer">■ Terminar la explicación</button></div></div></sc-if>
 <div style="min-height:100vh;display:flex;flex-direction:column">
 <div style="background:#0a1a3a;color:#fff;border-bottom:5px solid #f6d43a;padding:14px clamp(14px,3vw,36px);display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
 <div style="display:flex;gap:14px;align-items:center"><img src="escudo-providencia.png" alt="Escudo" style="height:56px"><div style="display:flex;flex-direction:column;gap:4px"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;color:#f6d43a;font-weight:700">PANEL DOCENTE · ROBÓTICA 9.º EGB</div><div style="font-family:'Archivo Black',sans-serif;font-size:clamp(22px,2.4vw,32px);line-height:1.1">Proyecto Smart Campus</div></div></div>
@@ -24,6 +26,11 @@
 <div style="padding:clamp(14px,3vw,36px);display:flex;flex-direction:column;gap:16px;max-width:1400px;width:100%;box-sizing:border-box;margin:0 auto">
 <div style="font-size:15px;color:{{ msgCol }}">{{ msg }}</div>
 <sc-if value="{{ on }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#0a1a3a;border-radius:12px;padding:12px 14px">
+<button onClick="{{ tClase }}" style="background:{{ clBg }};color:{{ clCol }};border:2px solid #f6d43a;border-radius:8px;font-family:'Archivo Black',sans-serif;font-size:16px;padding:10px 16px;cursor:pointer;white-space:nowrap">{{ clTxt }}</button>
+<button onClick="{{ tNet }}" style="background:{{ netBg }};color:{{ netCol }};border:2px solid #7fe0a0;border-radius:8px;font-weight:700;font-size:15px;padding:10px 14px;cursor:pointer;white-space:nowrap">{{ netTxt }}</button>
+<div style="color:#c9d2e8;font-size:14px;flex:1;min-width:220px">{{ clInfo }}</div>
+</div>
 <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
 <sc-for list="{{ pars }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.on }}" style="padding:8px 14px;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer;background:{{ p.bg }};color:{{ p.col }};border:2px solid #14306b;white-space:nowrap">{{ p.t }}</button></sc-for>
 <input value="{{ buscar }}" onChange="{{ setBuscar }}" placeholder="Buscar por nombre o código" style="font-size:15px;padding:8px 12px;border:2px solid #d6dbe8;border-radius:8px;min-width:220px">
@@ -34,7 +41,7 @@
 <div style="display:flex;flex-direction:column;gap:10px">
 <sc-for list="{{ filas }}" as="f" hint-placeholder-count="4">
 <div style="background:#fff;border:2px solid {{ f.bd }};border-radius:12px;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;align-items:start">
-<div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div style="font-weight:700;font-size:16px;overflow-wrap:anywhere">{{ f.autores }}</div><div style="font-size:14px;color:#525d78">{{ f.par }} · {{ f.id }} · {{ f.act }}</div><div style="font-size:15px;overflow-wrap:anywhere">{{ f.idea }}</div></div>
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div style="font-weight:700;font-size:16px;overflow-wrap:anywhere">{{ f.autores }}</div><div style="font-size:14px;color:#525d78">{{ f.par }} · {{ f.id }} · {{ f.act }}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;background:#e8edf8;color:#14306b;padding:3px 8px;border-radius:6px;white-space:nowrap">PC {{ f.pc }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;background:{{ f.salBg }};color:{{ f.salCol }};padding:3px 8px;border-radius:6px;white-space:nowrap">{{ f.salTxt }}</span></div><div style="font-size:15px;overflow-wrap:anywhere">{{ f.idea }}</div></div>
 <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span style="font-family:'Archivo Black',sans-serif;font-size:24px;color:#14306b;white-space:nowrap">{{ f.nota }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;white-space:nowrap">{{ f.etapas }} etapas</span><span style="font-size:13px;font-weight:700;color:{{ f.estCol }}">{{ f.estado }}</span></div><div style="height:8px;background:#e9ecf3;border-radius:4px"><div style="height:100%;width:{{ f.pct }};background:#14306b;border-radius:4px"></div></div><div style="font-size:12px;color:#525d78;line-height:1.4">{{ f.detalle }}</div>
 <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:14px;font-weight:700"><sc-if value="{{ f.verTk }}" hint-placeholder-val="{{ false }}"><a href="{{ f.tk }}" target="_blank" rel="noopener">Circuito ↗</a></sc-if><sc-if value="{{ f.verPdf }}" hint-placeholder-val="{{ false }}"><a href="{{ f.pdf }}" target="_blank" rel="noopener">Reporte PDF ↗</a></sc-if><sc-if value="{{ f.verWord }}" hint-placeholder-val="{{ false }}"><a href="{{ f.word }}" target="_blank" rel="noopener">Word ↗</a></sc-if></div></div>
 <div style="display:flex;flex-direction:column;gap:8px">
@@ -50,7 +57,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { clave: '', on: false, filas: [], msg: 'Escriba su clave y pulse «Ver proyectos». Se actualiza solo cada minuto.', err: false, par: 'Todos', buscar: '', com: {}, cargando: false };
+  state = { clase: { on: false, i: 0, net: false }, clave: '', on: false, filas: [], msg: 'Escriba su clave y pulse «Ver proyectos». Se actualiza solo cada minuto.', err: false, par: 'Todos', buscar: '', com: {}, cargando: false };
   componentWillUnmount() { clearInterval(this._t); }
   url() { const u = String((window.ARTICULO_CONFIG || {}).sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
   async cargar(silencio) {
@@ -59,16 +66,24 @@ class Component extends DCLogic {
     try { const r = await fetch(url + '?lista9=' + encodeURIComponent(this.state.clave)); const d = await r.json();
       if (!d.ok) { this.setState({ msg: 'Clave incorrecta. Es la que está en CLAVE_DOCENTE del Apps Script.', err: true, cargando: false }); return; }
       this.setState({ on: true, filas: d.filas || [], err: false, cargando: false, msg: (d.filas || []).length + ' proyectos · actualizado ' + new Date().toTimeString().slice(0, 5) });
-      if (!this._t) this._t = setInterval(() => this.cargar(true), 60000);
+      if (!this._t) { this._t = setInterval(() => this.cargar(true), 60000); this.leerClase(); }
     } catch (e) { this.setState({ msg: 'No se pudo conectar. Revise que publicó la nueva versión del Apps Script.', err: true, cargando: false }); }
   }
-  async admin(o) { const url = this.url(); try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ modo: 'p9adm', clave: this.state.clave }, o)) }); } catch (e) {} setTimeout(() => this.cargar(true), 1500); }
+  async clase(o) { const c = Object.assign({}, this.state.clase, o); this.setState({ clase: c }); await this.admin({ clase: o }, true); }
+  async leerClase() { try { const r = await fetch(this.url() + '?clase9=1'); const x = await r.json(); this.setState({ clase: x }); } catch (e) {} }
+  async admin(o, sinRecarga) { const url = this.url(); try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ modo: 'p9adm', clave: this.state.clave }, o)) }); } catch (e) {} if (!sinRecarga) setTimeout(() => this.cargar(true), 1500); }
   renderVals() {
     const s = this.state, q = s.buscar.trim().toLowerCase(), si = x => String(x || '').trim().toLowerCase().startsWith('s');
     const L = s.filas.filter(f => (s.par === 'Todos' || f.par === s.par) && (!q || (String(f.autores) + ' ' + f.id).toLowerCase().includes(q)));
     const pars = ['Todos', '9no A', '9no B', '9no C', '9no D'];
     const prom = L.length ? Math.round(L.reduce((a, f) => a + (Number(f.nota) || 0), 0) / L.length * 100) / 100 : 0;
+    const cl = s.clase || {}, EJ = window.EJEMPLO9 && (this._ej || (this._ej = window.EJEMPLO9.make(React)));
+    this._vista = cl.on && EJ ? React.createElement(EJ.Ejemplo, { i: cl.i, docente: true, onNav: i => this.clase({ i: Math.max(0, Math.min(EJ.total - 1, i)) }) }) : null;
     return {
+      vista: this._vista, verVista: !!this._vista, verPanel: !this._vista,
+      tClase: () => this.clase({ on: !cl.on, i: cl.on ? cl.i : 0 }), clTxt: cl.on ? '■ Terminar la explicación' : '▶ Modo explicación (tomar el control)', clBg: cl.on ? '#f6d43a' : 'transparent', clCol: cl.on ? '#0a1a3a' : '#f6d43a',
+      tNet: () => this.clase({ net: !cl.net }), netTxt: cl.net ? '🌐 Internet para todos: SÍ' : '🌐 Internet solo en etapas 1, 2, 4, 7 y 8', netBg: cl.net ? '#7fe0a0' : 'transparent', netCol: cl.net ? '#0a1a3a' : '#7fe0a0',
+      clInfo: cl.on ? 'Todas las pantallas muestran el ejemplo resuelto. Avance con los botones de abajo.' : 'Al activar el Modo explicación, todas las pantallas muestran el Semáforo Solar UV (unos 3 s de retraso).',
       clave: s.clave, setClave: e => this.setState({ clave: e.target.value }), cargar: () => this.cargar(), btnTxt: s.cargando ? 'Cargando…' : s.on ? 'Actualizar' : 'Ver proyectos',
       msg: s.msg, msgCol: s.err ? '#b3261e' : '#525d78', on: s.on, buscar: s.buscar, setBuscar: e => this.setState({ buscar: e.target.value }),
       pars: pars.map(p => ({ t: p, on: () => this.setState({ par: p }), bg: s.par === p ? '#14306b' : '#fff', col: s.par === p ? '#fff' : '#14306b' })),
@@ -76,6 +91,7 @@ class Component extends DCLogic {
       filas: L.map(f => { const ap = si(f.apoyo), ent = String(f.estado).indexOf('Entregado') === 0, n = parseInt(String(f.etapas), 10) || 0;
         return { id: f.id, autores: f.autores, par: f.par, act: f.act, idea: f.idea, nota: (Number(f.nota) || 0) + ' / 10', etapas: f.etapas, estado: f.estado, estCol: ent ? '#1d7a44' : '#a86200', pct: Math.round(n / 8 * 100) + '%', detalle: f.detalle, bd: ap ? '#a86200' : '#d6dbe8',
           tk: f.tk, pdf: f.pdf, word: f.word, verTk: !!f.tk, verPdf: !!f.pdf, verWord: !!f.word,
+          pc: f.pc || '—', salTxt: (Number(f.salidas) || 0) ? '⚠ ' + f.salidas + ' salidas' : '✓ sin salidas', salBg: (Number(f.salidas) || 0) ? '#fde9e6' : '#e3f4ea', salCol: (Number(f.salidas) || 0) ? '#b3261e' : '#1d7a44',
           apTxt: ap ? '✓ Con apoyo · quitar' : 'Activar versión con apoyo', apBg: ap ? '#a86200' : '#fff', apCol: ap ? '#fff' : '#a86200', toggle: () => this.admin({ id: f.id, apoyo: ap ? 'No' : 'Sí' }),
           com: s.com[f.id] != null ? s.com[f.id] : (f.com || ''), setCom: e => this.setState({ com: Object.assign({}, s.com, { [f.id]: e.target.value }) }), enviar: () => this.admin({ id: f.id, com: s.com[f.id] != null ? s.com[f.id] : (f.com || '') }) }; })
     };

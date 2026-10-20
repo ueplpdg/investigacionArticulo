@@ -1,0 +1,59 @@
+// Ejemplo resuelto para el Modo explicación · Semáforo Solar UV (9.º EGB).
+(function () {
+  const C = { ink: '#0a1a3a', acc: '#14306b', gold: '#f6d43a', goldBg: '#fff8d6', mute: '#525d78', line: '#d6dbe8', card: '#ffffff', bg: '#f3f4f8', blue: '#2456b8', amb: '#a86200', ok: '#1d7a44', red: '#b3261e' };
+  const HD = "'Archivo Black',sans-serif", MO = "'IBM Plex Mono',monospace";
+  const NIV = [[0, 2, 'BAJO', '#2bb34a', 'Pueden salir con normalidad. Usen gafas si hay mucho brillo.'], [3, 5, 'MODERADO', '#f2c418', 'Usen gorra y protector solar si estarán afuera más de 20 minutos.'], [6, 7, 'ALTO', '#f28c1c', 'Protector solar obligatorio, gorra y busquen sombra al mediodía.'], [8, 10, 'MUY ALTO', '#e5322d', 'Eviten el sol de 11:00 a 15:00. Protector cada 2 horas, gorra y manga larga.'], [11, 15, 'EXTREMO', '#8e44ad', 'No hagan Educación Física al sol. Quédense bajo techo.']];
+  const nivel = uv => NIV.find(n => uv >= n[0] && uv <= n[1]) || NIV[4];
+  const CODE = ['// Semáforo Solar UV · 9.º EGB', 'int sensor = A0;', 'int verde = 2, amarillo = 3, naranja = 4, rojo = 5, violeta = 6;', '', 'void setup() {', '  for (int p = 2; p <= 6; p++) pinMode(p, OUTPUT);', '  Serial.begin(9600);', '}', '', 'void loop() {', '  int luz = analogRead(sensor);      // 0 a 1023', '  int uv = map(luz, 0, 1023, 0, 12); // índice UV aproximado', '  for (int p = 2; p <= 6; p++) digitalWrite(p, LOW);', '  if (uv <= 2) digitalWrite(verde, HIGH);', '  else if (uv <= 5) digitalWrite(amarillo, HIGH);', '  else if (uv <= 7) digitalWrite(naranja, HIGH);', '  else if (uv <= 10) digitalWrite(rojo, HIGH);', '  else digitalWrite(violeta, HIGH);', '  Serial.println(uv);', '  delay(1000);', '}'];
+  const SL = [
+    { t: 'Ejemplo resuelto: Semáforo Solar UV', k: 'Antes de empezar su proyecto', p: ['Vamos a recorrer juntos las 8 etapas con un proyecto ya terminado.', 'Fíjense en QUÉ se escribe en cada etapa y CÓMO se justifica.', 'Después, ustedes harán lo mismo con su propia idea.'], v: 'sim' },
+    { t: 'Etapa 1 · La idea', k: 'El problema y para quién es', p: ['Problema: en Azogues el sol de mediodía puede llegar a índice UV muy alto o extremo, y en recreos y Educación Física casi nadie usa protector.', 'Usuarios: estudiantes y docentes que están en el patio.', 'Solución: un semáforo en el patio que mide la radiación y muestra con colores qué protección usar.'], v: 'sim' },
+    { t: 'Etapa 2 · Ideas similares', k: 'Lo que ya existe', p: ['Apps del clima que muestran el índice UV: informan, pero hay que tener celular.', 'Semáforos UV en playas de Chile y Argentina: un letrero de colores para todos.', 'Nuestra mejora: ubicado en el patio del colegio y con un consejo escrito para cada color.'] },
+    { t: 'Etapa 3 · Entradas y salidas', k: 'Entrada → proceso → salida', p: ['ENTRADA: sensor que mide la radiación solar.', 'PROCESO: el Arduino convierte la medida en índice UV y decide el nivel.', 'SALIDA: cinco LEDs de colores (verde, amarillo, naranja, rojo y violeta).'], v: 'io' },
+    { t: 'Etapa 4 · Componentes', k: 'Cada pieza en su pin', p: ['Sensor UV real: GUVA-S12SD o ML8511. En Tinkercad no existe, así que usamos una fotorresistencia (LDR) en A0 para simularlo.', 'LEDs: verde D2, amarillo D3, naranja D4, rojo D5 y violeta D6, cada uno con su resistencia de 220 Ω.', 'Arduino UNO alimentado por USB.'], v: 'pins' },
+    { t: 'Etapa 5 · Diagrama de flujo', k: 'La lógica de decisiones', p: ['Leer el sensor → calcular el índice UV.', '¿UV ≤ 2? verde · ¿UV ≤ 5? amarillo · ¿UV ≤ 7? naranja · ¿UV ≤ 10? rojo · si no, violeta.', 'Esperar 1 segundo y volver a medir (se repite siempre).'], v: 'flujo' },
+    { t: 'Etapa 6 · Código', k: 'El diagrama escrito para el Arduino', p: ['map() convierte la lectura (0 a 1023) en un índice de 0 a 12.', 'Primero apagamos todos los LEDs y luego encendemos solo el del nivel.', 'Los else if siguen el mismo orden que los rombos del diagrama.'], v: 'code' },
+    { t: 'Etapa 7 · Tinkercad', k: 'Probar sin quemar nada', p: ['Armen el circuito con la LDR en A0 y los 5 LEDs en D2 a D6.', 'Al iniciar la simulación, toquen la LDR y muevan su barra de luz: el semáforo debe cambiar de color.', 'Abran el monitor serie para ver el índice UV calculado.'], v: 'sim' },
+    { t: 'Etapa 8 · Reporte', k: 'Contar lo que hicimos', p: ['Resultado: el semáforo cambia de color según la luz y muestra el consejo.', 'Limitación: la LDR mide luz visible, no UV real; con un sensor UV sería más preciso.', 'Aprendimos: que un sistema automático puede cuidar la salud de toda la comunidad.'] }];
+  function make(React) {
+    const h = React.createElement, { useState } = React, D = (st, ...ch) => h('div', { style: st }, ...ch);
+    function Semaforo({ uv }) { const n = nivel(uv);
+      return D({ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' },
+        D({ background: '#1c2226', borderRadius: 16, padding: '14px 12px', display: 'flex', flexDirection: 'column', gap: 10, border: '4px solid ' + C.gold }, ...NIV.slice().reverse().map(x => D({ key: x[2], width: 54, height: 54, borderRadius: 27, background: x === n ? x[3] : '#3a3f44', boxShadow: x === n ? '0 0 26px ' + x[3] : 'none', transition: 'all .3s' }))),
+        D({ fontFamily: HD, fontSize: 26, color: n[3] === '#f2c418' ? '#9a7a00' : n[3] }, 'UV ' + uv + ' · ' + n[2]),
+        D({ background: C.goldBg, borderLeft: '6px solid ' + n[3], borderRadius: 8, padding: '10px 14px', fontSize: 17, lineHeight: 1.45, maxWidth: 380 }, n[4]));
+    }
+    function Sim() { const [uv, setUv] = useState(6);
+      return D({ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', width: '100%' },
+        h(Semaforo, { uv }), D({ display: 'flex', alignItems: 'center', gap: 12, width: '100%', maxWidth: 420 }, D({ fontSize: 28 }, '☁'), h('input', { type: 'range', min: 0, max: 12, value: uv, onChange: e => setUv(+e.target.value), style: { flex: 1, accentColor: C.acc } }), D({ fontSize: 30, color: '#e8a400' }, '☀')),
+        D({ fontSize: 14, color: C.mute }, 'Muevan el sol: así responde el semáforo terminado.'));
+    }
+    const Box = (col, t, s) => D({ flex: '1 1 150px', background: '#fff', border: '4px solid ' + col, borderRadius: 14, padding: 14, textAlign: 'center' }, D({ fontFamily: HD, fontSize: 20, color: col }, t), D({ fontSize: 15, color: C.mute, marginTop: 6 }, s));
+    const VIS = {
+      sim: () => h(Sim),
+      io: () => D({ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', width: '100%' }, Box(C.blue, 'ENTRADA', 'Sensor de radiación (LDR en Tinkercad)'), D({ fontFamily: HD, fontSize: 30, color: C.amb }, '→'), Box(C.acc, 'PROCESO', 'Arduino calcula el índice UV'), D({ fontFamily: HD, fontSize: 30, color: C.amb }, '→'), Box(C.amb, 'SALIDA', '5 LEDs de colores')),
+      pins: () => D({ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 8, width: '100%' }, ...[['A0', 'LDR (simula UV)', C.blue], ['D2', 'LED verde', '#2bb34a'], ['D3', 'LED amarillo', '#c9a000'], ['D4', 'LED naranja', '#f28c1c'], ['D5', 'LED rojo', '#e5322d'], ['D6', 'LED violeta', '#8e44ad']].map(([p, n, c]) => D({ key: p, border: '3px solid ' + c, borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center', background: '#fff' }, D({ fontFamily: MO, fontWeight: 700, fontSize: 18, color: c }, p), D({ fontSize: 15, fontWeight: 600 }, n)))),
+      flujo: () => D({ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', width: '100%' }, D({ border: '3px solid ' + C.acc, borderRadius: 999, padding: '8px 22px', fontWeight: 700 }, 'INICIO'), D({ border: '3px solid ' + C.blue, padding: '8px 18px', fontWeight: 600 }, 'Leer sensor → calcular UV'),
+        ...NIV.slice(0, 4).map(n => D({ key: n[2], display: 'flex', gap: 10, alignItems: 'center' }, D({ transform: 'rotate(45deg)', width: 22, height: 22, border: '3px solid ' + C.amb, flex: 'none' }), D({ fontFamily: MO, fontSize: 15 }, '¿UV ≤ ' + n[1] + '? SÍ →'), D({ background: n[3], color: '#fff', padding: '4px 12px', borderRadius: 6, fontWeight: 700, fontSize: 14 }, n[2]))),
+        D({ fontFamily: MO, fontSize: 15 }, 'NO a todo → ', h('b', { style: { color: '#8e44ad' } }, 'EXTREMO')), D({ border: '3px solid ' + C.blue, padding: '8px 18px', fontWeight: 600 }, 'Esperar 1 s ↺ volver a leer')),
+      code: () => D({ background: '#0a1430', color: '#e8f1f2', fontFamily: MO, fontSize: 'clamp(12px,1.05vw,16px)', lineHeight: 1.55, padding: '14px 18px', borderRadius: 10, overflowX: 'auto', whiteSpace: 'pre', width: '100%', boxSizing: 'border-box' }, CODE.join('\n'))
+    };
+    function Ejemplo({ i, docente, onNav }) {
+      const n = Math.max(0, Math.min(SL.length - 1, i || 0)), S = SL[n];
+      return D({ minHeight: '100vh', background: C.bg, display: 'flex', flexDirection: 'column' },
+        D({ background: C.ink, color: '#fff', borderBottom: '5px solid ' + C.gold, padding: '12px clamp(14px,3vw,36px)', display: 'flex', gap: 14, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' },
+          D({ display: 'flex', gap: 14, alignItems: 'center' }, h('img', { src: 'escudo-providencia.png', alt: 'Escudo', style: { height: 50 } }), D({ display: 'flex', flexDirection: 'column', gap: 3 }, D({ fontFamily: MO, fontSize: 12, letterSpacing: '.14em', color: C.gold, fontWeight: 700 }, docente ? 'MODO EXPLICACIÓN · USTED CONTROLA LAS PANTALLAS' : 'EL DOCENTE ESTÁ EXPLICANDO · MIREN EL PROYECTOR'), D({ fontFamily: HD, fontSize: 'clamp(18px,2vw,26px)' }, 'Ejemplo resuelto · Semáforo Solar UV'))),
+          D({ fontFamily: MO, fontSize: 15, whiteSpace: 'nowrap' }, (n + 1) + ' / ' + SL.length)),
+        D({ flex: 1, padding: 'clamp(16px,3vw,40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,420px),1fr))', gap: 'clamp(18px,3vw,40px)', alignItems: 'center', maxWidth: 1400, width: '100%', boxSizing: 'border-box', margin: '0 auto' },
+          D({ display: 'flex', flexDirection: 'column', gap: 16 }, D({ fontFamily: MO, fontSize: 14, letterSpacing: '.12em', color: C.acc, fontWeight: 700 }, S.k.toUpperCase()), D({ fontFamily: HD, fontSize: 'clamp(28px,3.4vw,52px)', lineHeight: 1.05, color: C.ink }, S.t),
+            ...S.p.map((x, k) => D({ key: k, display: 'flex', gap: 12, fontSize: 'clamp(17px,1.5vw,23px)', lineHeight: 1.45 }, D({ flex: 'none', width: 30, height: 30, borderRadius: 15, background: C.gold, color: C.ink, fontFamily: HD, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }, String(k + 1)), D({}, x)))),
+          D({ display: 'flex', justifyContent: 'center', background: '#fff', border: '2px solid ' + C.line, borderRadius: 16, padding: 'clamp(14px,2vw,26px)' }, (VIS[S.v] || VIS.sim)())),
+        docente ? D({ padding: '12px clamp(14px,3vw,36px)', background: '#fff', borderTop: '2px solid ' + C.line, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' },
+          h('button', { onClick: () => onNav(n - 1), disabled: n === 0, style: { background: '#fff', color: C.acc, border: '2px solid ' + C.acc, borderRadius: 8, fontFamily: HD, fontSize: 17, padding: '10px 20px', cursor: 'pointer', opacity: n === 0 ? 0.4 : 1 } }, '◀ Anterior'),
+          ...SL.map((_, k) => h('button', { key: k, onClick: () => onNav(k), style: { width: 38, height: 38, borderRadius: 19, border: '2px solid ' + C.acc, background: k === n ? C.acc : '#fff', color: k === n ? '#fff' : C.acc, fontWeight: 700, cursor: 'pointer' } }, String(k + 1))),
+          h('button', { onClick: () => onNav(n + 1), disabled: n === SL.length - 1, style: { background: C.acc, color: '#fff', border: 'none', borderRadius: 8, fontFamily: HD, fontSize: 17, padding: '10px 20px', cursor: 'pointer', opacity: n === SL.length - 1 ? 0.4 : 1 } }, 'Siguiente ▶')) : null);
+    }
+    return { Ejemplo, total: SL.length };
+  }
+  window.EJEMPLO9 = { make, total: SL.length };
+})();
