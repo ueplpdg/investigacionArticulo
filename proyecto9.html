@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<script src="./proyecto9-config.js"></script>
+<script src="./proyecto9.js"></script>
+<style>html,body{margin:0;background:#f2f4f3;color:#14201d;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#163a80}input,textarea,select,button{font-family:inherit}@keyframes p9spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#0b7d6e">Cargando el Proyecto Smart Campus…</div></sc-if>
+{{ app }}
+<sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;background:#14201d;color:#fff;padding:12px 18px;border-radius:10px;font-size:16px;font-weight:600;max-width:min(560px,calc(100vw - 32px));box-shadow:0 8px 24px rgba(0,0,0,.25)">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LSK = 'proyecto9no_v1';
+const CFG9 = () => Object.assign({ sheetsUrl: '' }, window.ARTICULO_CONFIG || {}, window.PROY9_CONFIG || {});
+const genId9 = () => { const a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s = 'P9-'; for (let i = 0; i < 5; i++) s += a[Math.floor(Math.random() * a.length)]; return s; };
+class Component extends DCLogic {
+  state = { st: null, ok: false, toast: '', nube: '' };
+  componentDidMount() {
+    let n = 0; const w = () => { if (window.PROY9 || n++ > 100) { this._ui = window.PROY9 && window.PROY9.make(React); this.setState({ ok: true }); return; } setTimeout(w, 100); }; w();
+    this._tk = setInterval(() => { const st = this.state.st; if (!st || document.hidden || !document.hasFocus()) return; const t = Object.assign({}, st.tiempo); t[st.cur] = (t[st.cur] || 0) + 10; this.setState({ st: Object.assign({}, st, { tiempo: t }) }); }, 10000);
+  }
+  componentWillUnmount() { clearInterval(this._tk); clearTimeout(this._cs); clearTimeout(this._ft); }
+  componentDidUpdate() { const st = this.state.st; if (!st) return; const j = JSON.stringify(st); if (j === this._last) return; this._last = j; try { localStorage.setItem(LSK, j); } catch (e) {} if (!this._cs) this._cs = setTimeout(() => { this._cs = null; this.nube(); }, 20000); }
+  local() { try { const s = JSON.parse(localStorage.getItem(LSK) || 'null'); return s && s.id ? s : null; } catch (e) { return null; } }
+  url() { const u = String(CFG9().sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  flash(t) { this.setState({ toast: t }); clearTimeout(this._ft); this._ft = setTimeout(() => this.setState({ toast: '' }), 3600); }
+  set(o) { this.setState({ st: Object.assign({}, this.state.st, o) }); }
+  async nube(html) {
+    const st = this.state.st, url = this.url(); if (!st) return;
+    if (!url) { this.setState({ nube: 'Guardado en esta computadora' }); return; }
+    const R = window.PROY9.resumen(st);
+    const body = { modo: 'p9', id: st.id, paralelo: '9no ' + st.par, autores: st.a1 + ' y ' + st.a2, titulo: R.idea, idea: R.idea, etapas: R.etapas, nota: R.nota, detalle: R.detalle, tinkercad: R.tinkercad, apoyo: st.ad ? 'Sí' : 'No', json: JSON.stringify(st) };
+    if (html) body.html = html;
+    this.setState({ nube: 'Guardando…' });
+    try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); this.setState({ nube: 'Guardado ✓ ' + new Date().toTimeString().slice(0, 5) }); }
+    catch (e) { this.setState({ nube: 'Sin conexión: se guardó en esta computadora' }); }
+  }
+  async continuar(cod) {
+    const L = this.local(); if (L && L.id === cod) { this.setState({ st: window.PROY9.norm(L) }); return true; }
+    const url = this.url(); if (!url) return false;
+    try { const r = await fetch(url + '?id=' + encodeURIComponent(cod)); const d = await r.json(); if (d && d.proyecto && d.proyecto.id) { this.setState({ st: window.PROY9.norm(d.proyecto) }); if (d.comentario) this.flash('Comentario del docente: ' + d.comentario); return true; } } catch (e) {}
+    return false;
+  }
+  renderVals() {
+    const s = this.state, P = window.PROY9;
+    const ctx = {
+      set: o => this.set(o), flash: t => this.flash(t), guardar: () => this.nube(), cfg: CFG9(), local: this.local(), nubeTxt: s.nube,
+      iniciar: f => { const st = P.norm(Object.assign(P.nuevo(), { id: genId9(), a1: f.a1.trim(), a2: f.a2.trim(), par: f.par, ad: !!f.ad, creado: new Date().toISOString() })); this.setState({ st }, () => { this.nube(); this.flash('Su código para continuar es ' + st.id + '. ¡Anótenlo!'); }); },
+      continuar: c => this.continuar(c), seguirLocal: () => { const L = this.local(); if (L) this.setState({ st: P.norm(L) }); },
+      salir: () => { this.nube(); this.setState({ st: null }); },
+      entregar: html => { const st = this.state.st, d = new Date().toLocaleDateString('es-EC'); this.setState({ st: Object.assign({}, st, { done: Object.assign({}, st.done, { e8: true }), entregado: d }) }, () => { this.nube(html); this.flash('¡Proyecto entregado! Se creó el reporte para el docente.'); }); }
+    };
+    return { cargando: !s.ok, app: s.ok && this._ui ? React.createElement(this._ui.App, { st: s.st, ctx }) : null, hayToast: !!s.toast, toast: s.toast };
+  }
+}
+</script>
+</body>
+</html>
