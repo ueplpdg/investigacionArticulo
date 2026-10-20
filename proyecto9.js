@@ -28,17 +28,18 @@
     { id: 'motor', n: 'Motor CC (ventilador)', t: 'out', s: 'd', tk: 'Motor CC', cn: 'PIN_MOTOR', acc: ['Encender', 'Apagar'], d: 'Hace girar un ventilador o una rueda.', c: 'Con un transistor NPN: pin → resistencia de 1 kΩ → base; motor entre 5 V y el colector; emisor a GND; diodo en paralelo al motor.' },
     { id: 'rele', n: 'Relé con bomba de agua', t: 'out', s: 'd', tk: 'Relé SPDT', cn: 'PIN_RELE', acc: ['Encender bomba', 'Apagar bomba'], d: 'Interruptor que el Arduino controla para encender una bomba de agua.', c: 'La bobina del relé se controla con un transistor, igual que el motor; la bomba (o un motor) va en los contactos del relé con su propia batería.' }];
   const CM = {}; COMP.forEach(c => { CM[c.id] = c; });
+  const SH = { boton: 'Pulsador', pir: 'PIR', inclin: 'Inclinación', ultra: 'Ultrasónico', ldr: 'Luz', humedad: 'Humedad', temp: 'TMP36', gas: 'Gas', pot: 'Perilla', ledv: 'LED verde', ledr: 'LED rojo', buzzer: 'Zumbador', servo: 'Servo', motor: 'Motor', rele: 'Relé' };
   const DP = []; for (let i = 2; i <= 13; i++) DP.push('D' + i);
   const AP = ['A0', 'A1', 'A2', 'A3', 'A4', 'A5'], PWM = ['D3', 'D5', 'D6', 'D9', 'D10', 'D11'], ALLP = DP.concat(AP);
   const ET = [
-    { k: 'e1', n: 'La idea', c: 1, min: 6, d: 'Elijan el problema del colegio y describan su solución.' },
-    { k: 'e2', n: 'Ideas similares', c: 1, min: 10, d: 'Investiguen proyectos parecidos y qué pueden aprender de ellos.' },
-    { k: 'e3', n: 'Entradas y salidas', c: 1, min: 12, d: 'Aprendan cómo el Arduino lee sensores y controla salidas.' },
-    { k: 'e4', n: 'Componentes', c: 1, min: 8, d: 'Elijan los sensores y salidas, y a qué pin va cada uno.' },
-    { k: 'e5', n: 'Diagrama de flujo', c: 2, min: 10, d: 'Armen la lógica del sistema y pruébenla en el simulador.' },
-    { k: 'e6', n: 'Código', c: 2, min: 10, d: 'Completen el programa y piensen como el Arduino.' },
-    { k: 'e7', n: 'Circuito en Tinkercad', c: 2, min: 15, d: 'Armen el circuito real paso a paso y simúlenlo.' },
-    { k: 'e8', n: 'Reporte y cierre', c: 2, min: 6, d: 'Revisen su reporte, reflexionen y entreguen.' }];
+    { k: 'e1', n: 'La idea', c: 1, min: 6, d: 'Elijan el problema del colegio y describan su solución.', w: 'Los ingenieros primero entienden bien el problema: si el problema está mal definido, la solución no sirve.' },
+    { k: 'e2', n: 'Ideas similares', c: 1, min: 10, d: 'Investiguen proyectos parecidos y qué pueden aprender de ellos.', w: 'Nadie inventa desde cero: ver proyectos parecidos ahorra tiempo y da buenas ideas.' },
+    { k: 'e3', n: 'Entradas y salidas', c: 1, min: 12, d: 'Aprendan cómo el Arduino lee sensores y controla salidas.', w: 'Para programar un sistema hay que saber cómo el Arduino «siente» (entradas) y cómo «actúa» (salidas).' },
+    { k: 'e4', n: 'Componentes', c: 1, min: 8, d: 'Elijan los sensores y salidas, y a qué pin va cada uno.', w: 'Cada pieza tiene un trabajo y un lugar en la placa: con un pin equivocado, nada funciona.' },
+    { k: 'e5', n: 'Diagrama de flujo', c: 2, min: 10, d: 'Armen la lógica del sistema y pruébenla en el simulador.', w: 'El diagrama es el plano del programa: si la lógica está bien, el código sale fácil.' },
+    { k: 'e6', n: 'Código', c: 2, min: 10, d: 'Completen el programa y piensen como el Arduino.', w: 'El código es su diagrama escrito en el idioma que entiende el Arduino.' },
+    { k: 'e7', n: 'Circuito en Tinkercad', c: 2, min: 15, d: 'Armen el circuito real paso a paso y simúlenlo.', w: 'Tinkercad permite probar el circuito sin quemar nada: si funciona aquí, funciona en la realidad.' },
+    { k: 'e8', n: 'Reporte y cierre', c: 2, min: 6, d: 'Revisen su reporte, reflexionen y entreguen.', w: 'Contar lo que hicieron y lo que aprendieron también es trabajo de ingenieros.' }];
   const QZ = [
     { q: 'El pulsador está presionado. ¿Qué devuelve digitalRead(2)?', o: ['HIGH (1)', 'LOW (0)', '1023', '512'], a: 0, ex: 'Un pin digital solo tiene dos estados. Presionado = HIGH (1); suelto = LOW (0).' },
     { q: '¿Entre qué valores puede responder analogRead(A0)?', o: ['0 y 1', '0 y 255', '0 y 1023', '0 y 100'], a: 2, ex: 'Las entradas analógicas del Arduino UNO van de 0 a 1023 (1024 valores posibles).' },
@@ -192,7 +193,7 @@
       ['Creen un circuito nuevo', 'Botón «Crear» → «Circuito». Pónganle de nombre: 9no ' + (st.par || '') + ' – ' + ideaNombre(st) + ' – ' + apellidos(st) + '.'],
       ['Coloquen el Arduino Uno R3 y una placa de pruebas', 'En el panel de la derecha busquen «Arduino Uno R3» y «Placa de pruebas pequeña» y arrástrenlos al área de trabajo.'],
       ['Conecten 5 V y GND a la placa de pruebas', 'Cable rojo del pin 5V a la línea + y cable negro de GND a la línea –. Cambien el color del cable haciendo clic sobre él.']];
-    sel(st).forEach(k => { const c = CM[k], p = pinsDe(st, k), pin = (c.pins || ['Señal']).map(x => x + ' → pin ' + (p[x] || '?')).join(', '); L.push(['Coloquen «' + c.tk + '» y conéctenlo (' + pin + ')', c.c]); });
+    sel(st).forEach(k => { const c = CM[k], p = pinsDe(st, k), pin = (c.pins || ['Señal']).map(x => x + ' → pin ' + (p[x] || '?')).join(', '); L.push(['Coloquen «' + c.tk + '» y conéctenlo (' + pin + ')', c.c, k]); });
     L.push(['Peguen su código', 'Botón «Código» → cambien «Bloques» por «Texto» → acepten → borren todo y peguen el código de la etapa 6 (botón «Copiar código»).']);
     L.push(['Inicien la simulación y prueben sus casos', 'Botón «Iniciar simulación». Hagan clic sobre el sensor para cambiar su valor y comprueben sus casos de prueba de la etapa 5.']);
     L.push(['Copien el enlace de su circuito', 'Copien la dirección de la barra del navegador (empieza con https://www.tinkercad.com/things/) y péguenla abajo.']);
@@ -221,7 +222,7 @@
   function make(React) {
     if (make.c) return make.c;
     const { useState, useEffect, useRef } = React, h = React.createElement;
-    const C = { bg: '#f2f4f3', card: '#ffffff', ink: '#14201d', mute: '#55625e', line: '#d5dcd9', acc: '#0b7d6e', accBg: '#e3f3ef', blue: '#2456b8', amb: '#a86200', ambBg: '#fff4de', red: '#c23b30', redBg: '#fde9e6', ok: '#1d7a44', okBg: '#e3f4ea', sunk: '#e9eeec', code: '#101820' };
+    const C = { bg: '#f3f4f8', card: '#ffffff', ink: '#0a1a3a', mute: '#525d78', line: '#d6dbe8', acc: '#14306b', accBg: '#e8edf8', blue: '#2456b8', blue2: '#2456b8', amb: '#a86200', ambBg: '#fff4de', red: '#b3261e', redBg: '#fde9e6', ok: '#1d7a44', okBg: '#e3f4ea', sunk: '#e9ecf3', code: '#0a1430', gold: '#f6d43a', gold2: '#b8900a', goldBg: '#fff8d6', brand: '#a81828' };
     const HD = "'Archivo Black',sans-serif", MO = "'IBM Plex Mono',monospace";
     const D = (st, ...ch) => h('div', { style: st }, ...ch);
     const arr = s => Array.isArray(s) ? s : [s];
@@ -260,21 +261,79 @@
       return D({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 10, border: '2px solid ' + (on ? C.acc : C.line), borderRadius: 10, minWidth: 110 }, vis, D({ fontSize: 13, fontWeight: 700, textAlign: 'center' }, c.n), D({ fontFamily: MO, fontSize: 12, color: on ? C.ok : C.mute }, on ? 'ACTIVO' : 'apagado'));
     }
 
+    function Pic({ k, s }) {
+      const z = s || 56, S = (...ch) => h('svg', { viewBox: '0 0 64 64', style: { width: z, height: z, flex: 'none', display: 'block' } }, ...ch);
+      const r = (x, y, w, hh, f, o) => h('rect', Object.assign({ x, y, width: w, height: hh, fill: f, rx: 3 }, o || {})), c = (x, y, rr, f, o) => h('circle', Object.assign({ cx: x, cy: y, r: rr, fill: f }, o || {}));
+      const l = (x1, y1, x2, y2, st, w) => h('line', { x1, y1, x2, y2, stroke: st || '#9aa5ab', strokeWidth: w || 3, strokeLinecap: 'round' }), legs = n => [...Array(n)].map((_, i) => l(32 - (n - 1) * 5 + i * 10, 46, 32 - (n - 1) * 5 + i * 10, 62));
+      const led = col => S(h('path', { d: 'M20 40 V24 A12 12 0 0 1 44 24 V40 Z', fill: col }), r(16, 38, 32, 6, col), l(26, 44, 26, 62), l(38, 44, 38, 56));
+      const M = {
+        boton: () => S(r(12, 12, 40, 40, '#2b2f33'), c(32, 32, 13, '#e5322d'), ...[[15, 15], [49, 15], [15, 49], [49, 49]].map(([x, y]) => c(x, y, 2.5, '#9aa5ab'))),
+        pir: () => S(r(10, 30, 44, 26, '#1d7a44'), h('path', { d: 'M14 32 A18 18 0 0 1 50 32 Z', fill: '#f4f4f4', stroke: '#bbb', strokeWidth: 2 })),
+        inclin: () => S(h('g', { transform: 'rotate(20 32 28)' }, r(22, 10, 20, 36, '#2b2f33'), c(32, 20, 5, '#c9ced1')), ...legs(2)),
+        ultra: () => S(r(4, 16, 56, 30, '#2456b8'), c(18, 31, 11, '#c9ced1', { stroke: '#7b8287', strokeWidth: 3 }), c(46, 31, 11, '#c9ced1', { stroke: '#7b8287', strokeWidth: 3 }), ...[14, 26, 38, 50].map(x => l(x, 46, x, 58))),
+        ldr: () => S(c(32, 26, 18, '#c0392b'), h('path', { d: 'M20 22 h6 v8 h6 v-8 h6 v8 h6', stroke: '#f6d43a', strokeWidth: 2.5, fill: 'none' }), ...legs(2)),
+        humedad: () => S(r(18, 4, 28, 18, '#1d4f9a'), h('path', { d: 'M22 22 V56 L26 60 L30 56 V22 M34 22 V56 L38 60 L42 56 V22', fill: '#d4a62a' })),
+        temp: () => S(h('path', { d: 'M18 40 V24 A14 14 0 0 1 46 24 V40 Z', fill: '#2b2f33' }), ...legs(3)),
+        gas: () => S(r(14, 14, 36, 32, '#c9ced1', { rx: 16 }), ...[22, 28, 34, 40].map(x => l(x, 18, x, 42, '#8a9294', 1.5)), ...legs(3)),
+        pot: () => S(r(14, 14, 36, 30, '#2456b8'), c(32, 29, 10, '#e9e9e9'), l(32, 29, 32, 21, '#2b2f33', 3), ...legs(3)),
+        ledv: () => led('#1fbf5b'), ledr: () => led('#e5322d'),
+        buzzer: () => S(c(32, 28, 20, '#2b2f33'), c(32, 28, 4, '#555'), h('text', { x: 18, y: 18, fill: '#fff', fontSize: 10, fontWeight: 700 }, '+'), ...legs(2)),
+        servo: () => S(r(10, 22, 44, 26, '#2456b8'), c(22, 22, 7, '#fff'), r(18, 6, 8, 22, '#fff', { rx: 4 }), l(54, 34, 62, 34, '#e08a2e', 3)),
+        motor: () => S(r(10, 18, 36, 28, '#9aa5ab', { rx: 12 }), r(46, 29, 12, 6, '#6b7378'), l(16, 46, 16, 58, '#e5322d'), l(26, 46, 26, 58, '#2b2f33')),
+        rele: () => S(r(10, 14, 44, 32, '#1d4f9a'), h('text', { x: 32, y: 34, textAnchor: 'middle', fill: '#fff', fontSize: 11, fontWeight: 700 }, 'RELÉ'), h('path', { d: 'M32 48 C28 54 28 58 32 60 C36 58 36 54 32 48 Z', fill: '#2f8fe0' })) };
+      return (M[k] || M.boton)();
+    }
+    function Placa({ st }) {
+      const map = {}; sel(st).forEach(k => Object.entries(pinsDe(st, k)).forEach(([nm, v]) => { if (v) map[v] = { k, nm, col: CM[k].t === 'in' ? C.blue2 : C.amb }; }));
+      const DD = []; for (let i = 13; i >= 0; i--) DD.push('D' + i);
+      const px = i => 46 + i * 21, lab = m => SH[m.k] + (CM[m.k].pins ? ' ' + m.nm : '');
+      return h('svg', { viewBox: '0 0 380 250', style: { width: '100%', maxWidth: 580, height: 'auto', display: 'block' } },
+        h('rect', { x: 20, y: 60, width: 340, height: 130, rx: 10, fill: '#0f6f8f' }), h('rect', { x: 0, y: 80, width: 40, height: 34, rx: 3, fill: '#c9ced1' }), h('rect', { x: 4, y: 138, width: 30, height: 30, rx: 3, fill: '#2b2f33' }),
+        h('rect', { x: 150, y: 112, width: 120, height: 34, rx: 3, fill: '#1c2226' }), h('text', { x: 210, y: 134, textAnchor: 'middle', fill: '#cfd8dc', fontSize: 11, fontFamily: 'monospace' }, 'ARDUINO UNO'),
+        ...DD.map((p, i) => { const m = map[p], ty = 48 - (i % 3) * 14; return h('g', { key: p }, h('rect', { x: px(i) - 6, y: 64, width: 12, height: 12, fill: m ? m.col : '#111', stroke: '#555' }), h('text', { x: px(i), y: 90, textAnchor: 'middle', fill: '#e8f4f8', fontSize: 9, fontFamily: 'monospace' }, (PWM.includes(p) ? '~' : '') + p.slice(1)), m ? h('g', null, h('line', { x1: px(i), y1: 64, x2: px(i), y2: ty + 3, stroke: m.col, strokeWidth: 2 }), h('text', { x: px(i), y: ty, textAnchor: 'middle', fill: m.col, fontSize: 10, fontWeight: 700 }, lab(m))) : null); }),
+        ...['5V', 'GND', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5'].map((p, i) => { const x = 120 + i * 30, m = map[p], ty = 214 + (i % 2) * 14; return h('g', { key: p }, h('rect', { x: x - 6, y: 172, width: 12, height: 12, fill: m ? m.col : p === '5V' ? '#c0392b' : '#111', stroke: '#555' }), h('text', { x, y: 166, textAnchor: 'middle', fill: '#e8f4f8', fontSize: 9, fontFamily: 'monospace' }, p), m ? h('g', null, h('line', { x1: x, y1: 184, x2: x, y2: ty - 11, stroke: m.col, strokeWidth: 2 }), h('text', { x, y: ty, textAnchor: 'middle', fill: m.col, fontSize: 10, fontWeight: 700 }, lab(m))) : null); }));
+    }
+    function Escena({ st, vals, estado }) {
+      const I = ins(st), O = outs(st), v = k => vals[k] || 0, it = [];
+      const luz = I.includes('ldr') ? v('ldr') / 1023 : 0.85, noche = luz < 0.35, wall = noche ? '#1b2440' : luz < 0.6 ? '#7d7f9a' : '#e9eef5';
+      const lampOn = estado.ledv || estado.ledr, lampCol = estado.ledr && !estado.ledv ? '#ff5a4f' : '#ffe27a';
+      it.push(h('rect', { key: 'w', x: 20, y: 24, width: 90, height: 70, fill: noche ? '#0b1430' : luz < 0.6 ? '#f2a65a' : '#9fd3f5', stroke: '#fff', strokeWidth: 4 }), noche ? h('circle', { key: 'mo', cx: 85, cy: 46, r: 10, fill: '#f4f1de' }) : h('circle', { key: 'su', cx: 85, cy: 46, r: 13, fill: '#ffd84a' }));
+      it.push(h('rect', { key: 'fl', x: 0, y: 200, width: 520, height: 60, fill: noche ? '#2a2f3a' : '#c9b99a' }));
+      if (O.includes('ledv') || O.includes('ledr')) { if (lampOn) it.push(h('polygon', { key: 'lz', points: '232,30 272,30 340,230 164,230', fill: lampCol, opacity: 0.25 })); it.push(h('rect', { key: 'lc', x: 250, y: 0, width: 4, height: 22, fill: '#555' }), h('ellipse', { key: 'lb', cx: 252, cy: 26, rx: 22, ry: 8, fill: lampOn ? lampCol : '#6b7378' })); }
+      if (I.includes('humedad') || O.includes('rele')) { const hu = I.includes('humedad') ? v('humedad') / 1023 : 0.5, seca = hu < 0.35;
+        it.push(h('g', { key: 'pl', transform: 'translate(150,140)' }, h('path', { d: 'M-24 30 L24 30 L18 62 L-18 62 Z', fill: '#b5563a' }), h('rect', { x: -24, y: 26, width: 48, height: 8, fill: seca ? '#c9a46b' : '#4a2e1c' }), h('path', { d: seca ? 'M0 26 C-2 10 -20 12 -26 20 M0 26 C2 8 22 10 26 22 M0 26 C0 6 0 0 -4 -6' : 'M0 26 C-4 4 -24 -2 -30 -10 M0 26 C4 2 24 -4 30 -12 M0 26 C0 0 0 -14 0 -22', stroke: seca ? '#a39b52' : '#2e9b45', strokeWidth: 6, fill: 'none', strokeLinecap: 'round' }), I.includes('humedad') ? h('path', { d: 'M32 0 V40 M38 0 V40', stroke: '#d4a62a', strokeWidth: 3 }) : null));
+        if (estado.rele) it.push(h('g', { key: 'ag' }, h('rect', { x: 122, y: 92, width: 56, height: 8, rx: 3, fill: '#2f8fe0' }), ...[0, 1, 2].map(i => h('circle', { key: 'd' + i, cx: 134 + i * 15, cy: 110, r: 4, fill: '#2f8fe0', style: { animation: 'p9drop .9s ' + (i * 0.3) + 's linear infinite' } })))); }
+      if (I.includes('gas')) it.push(h('rect', { key: 'st', x: 190, y: 176, width: 90, height: 24, fill: '#55606a' }), h('g', { key: 'gs', opacity: v('gas') / 1023 }, ...[0, 1, 2].map(i => h('circle', { key: i, cx: 210 + i * 26, cy: 150 - i * 22, r: 22 + i * 6, fill: '#9aa0a6' }))));
+      if (I.includes('ultra')) { const d = v('ultra'), x = 60 + Math.min(1, d / 300) * 340; it.push(h('g', { key: 'us' }, h('rect', { x: 18, y: 160, width: 32, height: 20, rx: 3, fill: '#2456b8' }), h('circle', { cx: 27, cy: 170, r: 5, fill: '#ddd' }), h('circle', { cx: 41, cy: 170, r: 5, fill: '#ddd' }), h('line', { x1: 52, y1: 170, x2: x, y2: 170, stroke: '#f6d43a', strokeWidth: 3, strokeDasharray: '6 5', style: { animation: 'p9flow .8s linear infinite' } }), h('rect', { x, y: 148, width: 42, height: 50, rx: 6, fill: '#e08a2e' }), h('text', { x: (52 + x) / 2, y: 160, textAnchor: 'middle', fontSize: 14, fontWeight: 700, fill: noche ? '#fff' : '#0a1a3a' }, d + ' cm'))); }
+      if (I.includes('pir')) { it.push(h('g', { key: 'ps' }, h('rect', { x: 470, y: 30, width: 26, height: 16, rx: 3, fill: '#1d7a44' }), h('path', { d: 'M472 46 A11 11 0 0 0 494 46 Z', fill: '#fff' }), v('pir') ? h('path', { d: 'M472 52 L380 150 M494 52 L430 170', stroke: '#e5322d', strokeWidth: 2, strokeDasharray: '5 4' }) : null));
+        if (v('pir')) it.push(h('g', { key: 'pe', transform: 'translate(320,118)' }, h('circle', { r: 12, fill: '#d9b48f' }), h('rect', { x: -12, y: 14, width: 24, height: 40, rx: 8, fill: '#14306b' }), h('rect', { x: -10, y: 54, width: 8, height: 28, fill: '#333' }), h('rect', { x: 2, y: 54, width: 8, height: 28, fill: '#333' }))); }
+      if (I.includes('temp')) { const t = v('temp'), lv = Math.max(0, Math.min(1, (t + 10) / 70)), col = t >= 30 ? '#e5322d' : t >= 22 ? '#e08a2e' : '#2f8fe0'; it.push(h('g', { key: 'th', transform: 'translate(450,62)' }, h('rect', { x: -6, y: 0, width: 12, height: 90, rx: 6, fill: '#fff', stroke: '#555', strokeWidth: 2 }), h('rect', { x: -3, y: 86 - lv * 84, width: 6, height: lv * 84 + 4, fill: col }), h('circle', { cx: 0, cy: 96, r: 10, fill: col }), h('text', { x: 0, y: -6, textAnchor: 'middle', fontSize: 14, fontWeight: 700, fill: noche ? '#fff' : '#0a1a3a' }, t + ' °C'))); }
+      if (I.includes('boton')) it.push(h('g', { key: 'bt', transform: 'translate(390,120)' }, h('rect', { x: -20, y: -20, width: 40, height: 40, rx: 4, fill: '#2b2f33' }), h('circle', { cy: v('boton') ? 3 : 0, r: 13, fill: v('boton') ? '#b3271f' : '#e5322d' })));
+      if (I.includes('pot')) it.push(h('g', { key: 'pt', transform: 'translate(390,60)' }, h('circle', { r: 16, fill: '#2456b8' }), h('line', { x1: 0, y1: 0, x2: 0, y2: -14, stroke: '#fff', strokeWidth: 4, transform: 'rotate(' + (v('pot') / 1023 * 270 - 135) + ')' })));
+      if (I.includes('inclin')) it.push(h('g', { key: 'in', transform: 'translate(400,198) rotate(' + (v('inclin') ? -35 : 0) + ')' }, h('rect', { x: -30, y: -40, width: 60, height: 40, fill: '#8a6a3c' })));
+      if (O.includes('servo')) it.push(h('g', { key: 'sv', transform: 'translate(70,200)' }, h('rect', { x: -10, y: -40, width: 20, height: 40, fill: '#14306b' }), h('rect', { x: 0, y: -40, width: 170, height: 10, rx: 5, fill: '#e5322d', transform: 'rotate(' + (estado.servo ? -75 : 0) + ' 0 -35)', style: { transition: 'transform .5s' } })));
+      if (O.includes('motor')) it.push(h('g', { key: 'mt', transform: 'translate(400,64)' }, h('g', { style: { animation: estado.motor ? 'p9spin .4s linear infinite' : 'none' } }, ...[0, 120, 240].map(r => h('ellipse', { key: r, cx: 0, cy: -18, rx: 8, ry: 18, fill: estado.motor ? '#5fb3e0' : '#9aa5ab', transform: 'rotate(' + r + ')' }))), h('circle', { r: 5, fill: '#333' })));
+      if (O.includes('buzzer')) it.push(h('g', { key: 'bz', transform: 'translate(486,150)' }, h('circle', { r: 16, fill: '#2b2f33' }), estado.buzzer ? h('g', { style: { animation: 'p9wave .5s ease-in-out infinite alternate' } }, ...[24, 34].map(r => h('path', { key: r, d: 'M' + (-r) + ' ' + (-r * 0.7) + ' A' + r + ' ' + r + ' 0 0 0 ' + (-r) + ' ' + (r * 0.7), stroke: '#f6d43a', strokeWidth: 3, fill: 'none' }))) : null));
+      return h('svg', { viewBox: '0 0 520 260', style: { width: '100%', height: 'auto', display: 'block', background: wall, borderRadius: 12, transition: 'background .3s' } }, ...it);
+    }
+    const FlujoIO = () => h('svg', { viewBox: '0 0 600 150', style: { width: '100%', height: 'auto', display: 'block' } },
+      ...[[20, 'ENTRADA', 'sensor o botón', C.blue2], [225, 'PROCESO', 'el Arduino decide', C.acc], [430, 'SALIDA', 'LED, motor, sonido', C.amb]].map(([x, t, s, col]) => h('g', { key: t }, h('rect', { x, y: 30, width: 150, height: 90, rx: 14, fill: '#fff', stroke: col, strokeWidth: 4 }), h('text', { x: x + 75, y: 70, textAnchor: 'middle', fontFamily: 'Archivo Black, sans-serif', fontSize: 18, fill: col }, t), h('text', { x: x + 75, y: 96, textAnchor: 'middle', fontSize: 14, fill: '#525d78' }, s))),
+      ...[170, 375].map(x => h('g', { key: x }, h('line', { x1: x + 4, y1: 75, x2: x + 46, y2: 75, stroke: C.gold2, strokeWidth: 6, strokeDasharray: '10 8', style: { animation: 'p9flow .7s linear infinite' } }), h('polygon', { points: (x + 44) + ',63 ' + (x + 56) + ',75 ' + (x + 44) + ',87', fill: C.gold2 }))));
     function Login({ ctx }) {
-      const [f, setF] = useState({ a1: '', a2: '', par: '', ad: false }), [cod, setCod] = useState(''), [msg, setMsg] = useState(''), [carg, setCarg] = useState(false);
+      const [f, setF] = useState({ a1: '', a2: '', par: '' }), [cod, setCod] = useState(''), [msg, setMsg] = useState(''), [carg, setCarg] = useState(false);
       const okN = s => String(s || '').trim().split(/\s+/).length >= 2, L = ctx.local;
       const ir = () => { if (!okN(f.a1) || !okN(f.a2)) { setMsg('Escriban nombre y apellido de los dos integrantes.'); return; } if (!f.par) { setMsg('Elijan su paralelo.'); return; } ctx.iniciar(f); };
       const cont = async () => { setCarg(true); setMsg(''); const r = await ctx.continuar(cod.trim().toUpperCase()); setCarg(false); if (!r) setMsg('No encontramos ese código. Revísenlo o pidan ayuda al docente.'); };
       return D({ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, boxSizing: 'border-box', background: C.bg },
         D({ width: '100%', maxWidth: 980, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,420px),1fr))', gap: 20 },
-          D({ display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center' }, K('Robótica · 9.º EGB · Unidad Educativa «La Providencia»', C.acc), H1('Proyecto Smart Campus', { fontSize: 'clamp(34px,4vw,56px)' }),
-            T('En parejas van a diseñar un sistema automático que resuelva un problema real del colegio: desde la idea hasta el circuito funcionando en Tinkercad.'),
-            Card({ gap: 6 }, K('Clase 1', C.acc), T('La idea · Ideas similares · Entradas y salidas · Componentes', { fontSize: 15 }), K('Clase 2', C.acc), T('Diagrama de flujo · Código · Tinkercad · Reporte', { fontSize: 15 })),
-            T('Cada etapa se abre cuando la anterior está bien hecha. Si terminan antes, sigan avanzando. El avance se guarda solo.', { fontSize: 15, color: C.mute })),
+          D({ display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', background: C.ink, color: '#fff', borderRadius: 16, padding: 'clamp(20px,3vw,36px)', borderBottom: '8px solid ' + C.gold },
+            Row({ gap: 16, alignItems: 'center' }, h('img', { src: 'escudo-providencia.png', alt: 'Escudo', style: { height: 92, flex: 'none' } }), D({ display: 'flex', flexDirection: 'column', gap: 4 }, K('Unidad Educativa Particular «La Providencia»', C.gold), K('Robótica · 9.º EGB', '#c9d2e8'))),
+            H1('Proyecto Smart Campus', { fontSize: 'clamp(34px,4vw,56px)', color: '#fff' }), T('En parejas van a diseñar un sistema automático que resuelva un problema real del colegio: desde la idea hasta el circuito funcionando en Tinkercad.', { color: '#e3e8f5' }),
+            h(FlujoIO), D({ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,220px),1fr))', gap: 10 }, ...[['CLASE 1', 'La idea · Ideas similares · Entradas y salidas · Componentes'], ['CLASE 2', 'Diagrama de flujo · Código · Tinkercad · Reporte']].map(([a, b]) => D({ border: '2px solid ' + C.gold, borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 4 }, K(a, C.gold), D({ fontSize: 15, lineHeight: 1.4 }, b)))),
+            T('Cada etapa se abre cuando la anterior está bien hecha. Si terminan antes, sigan avanzando. El avance se guarda solo.', { fontSize: 15, color: '#c9d2e8' })),
           Card({ gap: 14 }, H2('Empezar un proyecto nuevo'),
             F({ lab: 'Integrante 1 (nombre y apellido)', v: f.a1, on: v => setF(Object.assign({}, f, { a1: v })), paste: true }), F({ lab: 'Integrante 2 (nombre y apellido)', v: f.a2, on: v => setF(Object.assign({}, f, { a2: v })), paste: true }),
             D({ display: 'flex', flexDirection: 'column', gap: 6 }, D({ fontWeight: 700 }, 'Paralelo'), Row({}, ...['A', 'B', 'C', 'D'].map(x => Chip('9no ' + x, f.par === x, () => setF(Object.assign({}, f, { par: x })))))),
-            h('label', { style: { display: 'flex', gap: 10, alignItems: 'center', fontSize: 15, cursor: 'pointer' } }, h('input', { type: 'checkbox', checked: f.ad, onChange: e => setF(Object.assign({}, f, { ad: e.target.checked })), style: { width: 20, height: 20 } }), 'Versión con apoyo (solo si el docente lo indicó)'),
             Btn('Comenzar el proyecto →', ir, { fs: 18, pad: '14px 20px' }), msg ? T(msg, { color: C.red, fontWeight: 700, fontSize: 15 }) : null,
             D({ borderTop: '2px solid ' + C.line, paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }, H2('Continuar un proyecto'),
               L && L.a1 ? Btn('Continuar en esta computadora: ' + L.a1 + ' y ' + L.a2 + ' (' + L.id + ')', ctx.seguirLocal, { bg: C.blue }) : null,
@@ -337,7 +396,7 @@
       const e = st.e3, n = st.ad ? 5 : 8, vis = k => { if (!e.vis[k]) set({ e3: Object.assign({}, e, { vis: Object.assign({}, e.vis, { [k]: 1 }) }) }); };
       const resp = (i, k) => { const ok = k === QZ[i].a, q = Object.assign({}, e.q, { [i]: ok ? { ok: true } : { mal: k } }); set(ok ? { e3: Object.assign({}, e, { q }) } : { e3: Object.assign({}, e, { q }), err: Object.assign({}, st.err, { e3: (st.err.e3 || 0) + 1 }) }); if (ok) beep(1320, 0.12); };
       return D({ display: 'flex', flexDirection: 'column', gap: 16 },
-        Card({ borderColor: C.acc, background: C.accBg }, H2('Todo sistema automático tiene 3 partes'), Grid(200, ...[['ENTRADA', 'Sensores y botones: le cuentan al Arduino qué pasa.', C.blue], ['PROCESO', 'El Arduino compara y decide con su programa (if / else).', C.acc], ['SALIDA', 'LED, zumbador, motor, servo: hacen algo en el mundo real.', C.amb]].map(([a, b, c]) => D({ borderLeft: '6px solid ' + c, paddingLeft: 12, display: 'flex', flexDirection: 'column', gap: 4 }, D({ fontFamily: HD, fontSize: 20, color: c }, a), T(b, { fontSize: 15 }))))),
+        Card({ borderColor: C.acc, background: C.accBg }, H2('Todo sistema automático tiene 3 partes'), h(FlujoIO), Grid(200, ...[['ENTRADA', 'Sensores y botones: le cuentan al Arduino qué pasa.', C.blue], ['PROCESO', 'El Arduino compara y decide con su programa (if / else).', C.acc], ['SALIDA', 'LED, zumbador, motor, servo: hacen algo en el mundo real.', C.amb]].map(([a, b, c]) => D({ borderLeft: '6px solid ' + c, paddingLeft: 12, display: 'flex', flexDirection: 'column', gap: 4 }, D({ fontFamily: HD, fontSize: 20, color: c }, a), T(b, { fontSize: 15 }))))),
         Grid(380, h(SimBoton, { on: () => vis('b') }), h(SimLDR, { on: () => vis('l') })), h(SimSal, { on: () => vis('s') }),
         Card({}, H2('Pensar como el Arduino · ' + n + ' preguntas'), T('Si se equivocan, lean la explicación y vuelvan a intentar. Cada error resta medio punto de esta etapa.', { fontSize: 15, color: C.mute }),
           ...QZ.slice(0, n).map((x, i) => { const r = e.q[i] || {};
@@ -355,13 +414,14 @@
           Row({}, Chip('Entradas (sensores) · ' + I.length, tab === 'in', () => setTab('in'), C.blue), Chip('Salidas · ' + O.length, tab === 'out', () => setTab('out'), C.amb)),
           Grid(230, ...COMP.filter(c => c.t === tab).map(c => { const on = !!S[c.id], sug = idea.ent.concat(idea.sal).includes(c.id);
             return h('button', { key: c.id, onClick: () => tog(c.id), style: { textAlign: 'left', background: on ? C.accBg : C.card, color: C.ink, border: '3px solid ' + (on ? C.acc : C.line), borderRadius: 12, padding: 12, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6 } },
-              D({ fontFamily: HD, fontSize: 17 }, (sug ? '★ ' : '') + c.n), D({ fontSize: 14, lineHeight: 1.4 }, c.d), D({ fontFamily: MO, fontSize: 12, color: c.t === 'in' ? C.blue : C.amb }, (c.t === 'in' ? 'ENTRADA ' : 'SALIDA ') + (c.s === 'a' || c.s === 't' ? 'ANALÓGICA' : c.s === 'p' ? 'PWM (~)' : 'DIGITAL')), D({ fontFamily: MO, fontSize: 12, fontWeight: 700, color: on ? C.ok : C.mute }, on ? '✓ ELEGIDO · tocar para quitar' : '+ tocar para elegir')); }))),
+              Row({ gap: 10, alignItems: 'center' }, h(Pic, { k: c.id, s: 52 }), D({ fontFamily: HD, fontSize: 17, flex: '1 1 120px' }, (sug ? '★ ' : '') + c.n)), D({ fontSize: 14, lineHeight: 1.4 }, c.d), D({ fontFamily: MO, fontSize: 12, color: c.t === 'in' ? C.blue : C.amb }, (c.t === 'in' ? 'ENTRADA ' : 'SALIDA ') + (c.s === 'a' || c.s === 't' ? 'ANALÓGICA' : c.s === 'p' ? 'PWM (~)' : 'DIGITAL')), D({ fontFamily: MO, fontSize: 12, fontWeight: 700, color: on ? C.ok : C.mute }, on ? '✓ ELEGIDO · tocar para quitar' : '+ tocar para elegir')); }))),
         ...sel(st).map(k => { const c = CM[k], p = pinsDe(st, k), er = pinErr(st, k);
-          return Card({ borderColor: er.length ? C.amb : C.ok }, Row({ justifyContent: 'space-between' }, H2(c.n), K(c.t === 'in' ? 'Entrada' : 'Salida', c.t === 'in' ? C.blue : C.amb)),
+          return Card({ borderColor: er.length ? C.amb : C.ok }, Row({ justifyContent: 'space-between' }, Row({ gap: 12 }, h(Pic, { k, s: 48 }), H2(c.n)), K(c.t === 'in' ? 'Entrada' : 'Salida', c.t === 'in' ? C.blue : C.amb)),
             Row({}, ...(c.pins || ['Señal']).map(nm => D({ display: 'flex', flexDirection: 'column', gap: 4 }, D({ fontWeight: 700, fontSize: 14 }, 'Pin de ' + (c.pins ? nm : 'señal')), Sel(p[nm], ALLP, v => setC(k, { pins: Object.assign({}, p, { [nm]: v }) }))))),
             er.length ? Lista(er, C.amb) : T('✓ Pin correcto', { color: C.ok, fontSize: 15, fontWeight: 700 }),
             T(['Conexión: ', c.c], { fontSize: 14, color: C.mute }),
             F({ lab: '¿Para qué lo usan en su proyecto?', v: (S[k] || {}).uso, on: v => setC(k, { uso: v }), min: MIN(st, 6), flash, ph: 'Ej.: Mide la humedad de la maceta para saber cuándo regar' })); }),
+        sel(st).length ? Card({ alignItems: 'center' }, K('Así queda su placa · azul = entradas · naranja = salidas', C.acc), h(Placa, { st })) : null,
         sel(st).length ? Card({ borderColor: C.blue }, K('Lista de materiales (se arma sola)', C.blue), ...['1 Arduino UNO R3', '1 placa de pruebas (protoboard)', 'Cables de conexión'].concat(sel(st).map(k => '1 ' + CM[k].n)).concat(resist).map(x => T('• ' + x, { fontSize: 15 }))) : null);
     }
     function Diag({ st, vals }) {
@@ -393,7 +453,7 @@
         Card({ borderColor: C.blue }, K('Simulador · cambien los sensores y miren qué hace su sistema', C.blue),
           Grid(240, ...I.map(k => D({ display: 'flex', flexDirection: 'column', gap: 6 }, D({ fontWeight: 700 }, CM[k].n + ': ' + valTxt(k, vals[k])),
             esDig(k) ? Row({}, Chip('LOW · no activado', !vals[k], () => setVals(Object.assign({}, vals, { [k]: 0 })), C.mute), Chip('HIGH · activado', !!vals[k], () => setVals(Object.assign({}, vals, { [k]: 1 })), C.blue)) : h('input', { type: 'range', min: rango(k)[0], max: rango(k)[1], value: vals[k], onChange: ev => setVals(Object.assign({}, vals, { [k]: Number(ev.target.value) })), style: { width: '100%' } })))),
-          Row({ gap: 14 }, ...O.map(k => h(OutVis, { key: k, k, on: estado[k] }))),
+          h(Escena, { st, vals, estado }), Row({ gap: 14 }, ...O.map(k => h(OutVis, { key: k, k, on: estado[k] }))),
           T(r == null ? 'Completen el rombo para ver el resultado.' : ['¿', condTxt(e), '? → ', B_(r ? 'SÍ' : 'NO'), ' → se ejecuta ', (acts(st, r ? e.si : e.no).map(accTxt).join(' · ') || 'nada')], { fontWeight: 600 }),
           Row({}, Btn('Registrar este caso de prueba', registrar, { bg: C.blue }), T('Necesitan al menos 2: uno por SÍ y otro por NO.', { fontSize: 14, color: C.mute })),
           (e.casos || []).length ? D({ display: 'flex', flexDirection: 'column', gap: 4 }, ...e.casos.map((c, i) => Row({}, T((i + 1) + '. ' + c.txt + ' → camino ' + (cond(e, c.vals) ? 'SÍ' : 'NO'), { fontSize: 15, fontFamily: MO }), Btn('Borrar', () => u({ casos: e.casos.filter((_, j) => j !== i) }), { bg: C.card, c: C.red, bd: C.red, fs: 12, pad: '4px 8px' })))) : null),
@@ -426,11 +486,12 @@
       return D({ display: 'flex', flexDirection: 'column', gap: 16 },
         Card({ borderColor: C.blue, background: '#eef3fc' }, K('Su clase de Tinkercad · 9no ' + st.par, C.blue), cod ? Row({ gap: 18 }, D({ fontFamily: HD, fontSize: 'clamp(28px,3vw,44px)', letterSpacing: '.08em', color: C.blue }, cod), h('a', { href: 'https://www.tinkercad.com/joinclass/' + cod, target: '_blank', rel: 'noopener', style: { background: C.blue, color: '#fff', padding: '12px 18px', borderRadius: 8, fontWeight: 700, textDecoration: 'none' } }, 'Entrar a la clase en Tinkercad ↗')) : T('Pidan al docente el código de clase de Tinkercad.', { fontWeight: 700 }),
           T('Entren con el apodo que les dio su docente. Trabajen en UNA computadora; el otro integrante revisa cada conexión con la guía.', { fontSize: 15 })),
+        Card({ alignItems: 'center' }, K('Sus conexiones en la placa', C.acc), h(Placa, { st })),
         Card({}, Row({ justifyContent: 'space-between' }, H2('Guía paso a paso'), K(n + ' / ' + L.length + ' pasos', n === L.length ? C.ok : C.mute)), T('Marquen cada paso cuando lo terminen. Van en orden.', { fontSize: 15, color: C.mute }),
-          ...L.map(([t, tip], i) => { const on = !!e.pasos[i], puede = i === 0 || !!e.pasos[i - 1];
+          ...L.map(([t, tip, pk], i) => { const on = !!e.pasos[i], puede = i === 0 || !!e.pasos[i - 1];
             return h('label', { key: i, style: { display: 'flex', gap: 12, alignItems: 'flex-start', padding: 12, borderRadius: 10, border: '2px solid ' + (on ? C.ok : C.line), background: on ? C.okBg : puede ? '#fff' : C.sunk, opacity: puede ? 1 : 0.6, cursor: puede ? 'pointer' : 'not-allowed' } },
               h('input', { type: 'checkbox', checked: on, disabled: !puede, onChange: ev => { const p = Object.assign({}, e.pasos); if (ev.target.checked) p[i] = true; else for (let j = i; j < L.length; j++) delete p[j]; u({ pasos: p }); }, style: { width: 22, height: 22, marginTop: 2, flex: 'none' } }),
-              D({ display: 'flex', flexDirection: 'column', gap: 4 }, D({ fontWeight: 700, fontSize: 16 }, (i + 1) + '. ' + t), D({ fontSize: 14, color: C.mute, lineHeight: 1.45 }, tip))); })),
+              pk ? h(Pic, { k: pk, s: 44 }) : null, D({ display: 'flex', flexDirection: 'column', gap: 4 }, D({ fontWeight: 700, fontSize: 16 }, (i + 1) + '. ' + t), D({ fontSize: 14, color: C.mute, lineHeight: 1.45 }, tip))); })),
         Card({}, F({ lab: 'Enlace de su circuito en Tinkercad', v: e.url, on: v => u({ url: v.trim() }), paste: true, ph: 'https://www.tinkercad.com/things/…' }),
           D({ display: 'flex', flexDirection: 'column', gap: 6 }, D({ fontWeight: 700 }, '¿Funcionó la simulación?'), Row({}, ...['Funcionó como esperábamos', 'Funcionó en parte', 'Todavía no funciona'].map(x => Chip(x, e.res === x, () => u({ res: x }), x[0] === 'F' && x.length > 20 ? C.ok : C.amb)))),
           F({ lab: 'Describan qué pasó al probar sus casos y qué tuvieron que corregir', ayuda: 'Ej.: «Al principio el LED no prendía porque estaba al revés; giramos el LED y…»', v: e.obs, on: v => u({ obs: v }), min: MIN(st, 20), rows: 3, flash })));
@@ -461,17 +522,17 @@
       const completar = () => { set({ done: Object.assign({}, st.done, { [E.k]: true }), cur: ET[Math.min(ET.length - 1, idx + 1)].k }); ctx.flash('Etapa ' + (idx + 1) + ' completa ✓'); setTimeout(ctx.guardar, 300); try { window.scrollTo(0, 0); } catch (x) {} };
       const cx = Object.assign({}, ctx, { faltaSeg: falta });
       return D({ minHeight: '100vh', background: C.bg, color: C.ink, fontFamily: "'IBM Plex Sans',sans-serif" },
-        D({ background: C.ink, color: '#fff', padding: '12px clamp(14px,2.5vw,32px)', display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center', justifyContent: 'space-between' },
-          D({ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0, lineHeight: 1.35 }, D({ fontFamily: MO, fontSize: 12, letterSpacing: '.14em', color: '#8fe3d4' }, 'PROYECTO SMART CAMPUS · 9.º ' + st.par + (st.ad ? ' · CON APOYO' : '')), D({ fontFamily: HD, fontSize: 'clamp(18px,1.8vw,26px)' }, ideaNombre(st)), D({ fontSize: 14, color: '#c9d6d2' }, st.a1 + ' y ' + st.a2)),
-          Row({ gap: 12 }, D({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }, D({ fontFamily: MO, fontSize: 11, color: '#8fe3d4', whiteSpace: 'nowrap' }, 'CÓDIGO PARA CONTINUAR'), D({ fontFamily: MO, fontSize: 18, fontWeight: 700, letterSpacing: '.08em', whiteSpace: 'nowrap' }, st.id)),
-            D({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }, D({ fontFamily: MO, fontSize: 11, color: '#8fe3d4', whiteSpace: 'nowrap' }, 'NOTA'), D({ fontFamily: HD, fontSize: 22, whiteSpace: 'nowrap' }, N + ' / 10')),
+        D({ background: C.ink, color: '#fff', padding: '12px clamp(14px,2.5vw,32px)', display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center', justifyContent: 'space-between', borderBottom: '5px solid ' + C.gold },
+          Row({ gap: 14, minWidth: 0 }, h('img', { src: 'escudo-providencia.png', alt: 'Escudo', style: { height: 54, flex: 'none' } }), D({ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0, lineHeight: 1.35 }, D({ fontFamily: MO, fontSize: 12, letterSpacing: '.14em', color: C.gold }, 'PROYECTO SMART CAMPUS · 9.º ' + st.par + (st.ad ? ' · CON APOYO' : '')), D({ fontFamily: HD, fontSize: 'clamp(18px,1.8vw,26px)' }, ideaNombre(st)), D({ fontSize: 14, color: '#c9d2e8' }, st.a1 + ' y ' + st.a2))),
+          Row({ gap: 12 }, D({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }, D({ fontFamily: MO, fontSize: 11, color: C.gold, whiteSpace: 'nowrap' }, 'CÓDIGO PARA CONTINUAR'), D({ fontFamily: MO, fontSize: 18, fontWeight: 700, letterSpacing: '.08em', whiteSpace: 'nowrap' }, st.id)),
+            D({ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }, D({ fontFamily: MO, fontSize: 11, color: C.gold, whiteSpace: 'nowrap' }, 'NOTA'), D({ fontFamily: HD, fontSize: 22, whiteSpace: 'nowrap' }, N + ' / 10')),
             D({ fontFamily: MO, fontSize: 12, color: '#c9d6d2', maxWidth: 170 }, ctx.nubeTxt || ''), Btn('Salir', ctx.salir, { bg: 'transparent', bd: '#8fa39d', fs: 13, pad: '6px 12px' }))),
         D({ padding: '14px clamp(14px,2.5vw,32px)', display: 'flex', gap: 8, flexWrap: 'wrap', borderBottom: '2px solid ' + C.line, background: '#fff' },
           ...ET.map((x, i) => { const on = x.k === st.cur, ok = !!st.done[x.k], ab = abierta(i);
             return h('button', { key: x.k, onClick: () => ir(i), style: { display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'flex-start', padding: '8px 12px', borderRadius: 10, cursor: ab ? 'pointer' : 'not-allowed', border: '2px solid ' + (on ? C.acc : ok ? C.ok : C.line), background: on ? C.acc : ok ? C.okBg : ab ? '#fff' : C.sunk, color: on ? '#fff' : C.ink, opacity: ab ? 1 : 0.55, minWidth: 0 } },
               h('span', { style: { fontFamily: MO, fontSize: 11, whiteSpace: 'nowrap' } }, 'CLASE ' + x.c + ' · ' + (i + 1)), h('span', { style: { fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' } }, (ok ? '✓ ' : ab ? '' : '🔒 ') + x.n)); })),
         D({ padding: 'clamp(14px,2.5vw,32px)', maxWidth: 1240, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 18, boxSizing: 'border-box' },
-          D({ display: 'flex', flexDirection: 'column', gap: 6 }, K('Etapa ' + (idx + 1) + ' de 8 · Clase ' + E.c + ' · tiempo sugerido ' + E.min + ' min', C.acc), H1(E.n), T(E.d, { color: C.mute })),
+          D({ display: 'flex', flexDirection: 'column', gap: 6 }, K('Etapa ' + (idx + 1) + ' de 8 · Clase ' + E.c + ' · tiempo sugerido ' + E.min + ' min', C.acc), H1(E.n), T(E.d, { color: C.mute }), D({ background: C.goldBg, borderLeft: '6px solid ' + C.gold, borderRadius: 8, padding: '10px 14px', fontSize: 15, lineHeight: 1.45 }, h('b', null, '¿Por qué es importante? '), E.w)),
           h(STAGE[E.k], { key: E.k, st, up, set, flash: ctx.flash, ctx: cx, cfg: ctx.cfg || {} }),
           E.k === 'e8' ? null : Card({ borderColor: st.done[E.k] ? C.ok : V.ok ? C.acc : C.amb },
             st.done[E.k] ? Row({ justifyContent: 'space-between' }, T('✓ Etapa completa (' + (R[E.k] != null ? R[E.k] : 10) + ' / 10). Pueden mejorarla: los cambios se guardan.', { color: C.ok, fontWeight: 700 }), Btn('Ir a la siguiente etapa →', () => ir(idx + 1)))

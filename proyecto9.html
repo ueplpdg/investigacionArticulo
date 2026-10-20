@@ -13,9 +13,9 @@
 <script src="./config.js"></script>
 <script src="./proyecto9-config.js"></script>
 <script src="./proyecto9.js"></script>
-<style>html,body{margin:0;background:#f2f4f3;color:#14201d;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#163a80}input,textarea,select,button{font-family:inherit}@keyframes p9spin{to{transform:rotate(360deg)}}</style>
+<style>html,body{margin:0;background:#f3f4f8;color:#0a1a3a;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#163a80}input,textarea,select,button{font-family:inherit}@keyframes p9spin{to{transform:rotate(360deg)}}@keyframes p9flow{to{stroke-dashoffset:-36}}@keyframes p9drop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(46px);opacity:0}}@keyframes p9wave{from{opacity:.25}to{opacity:1}}</style>
 </helmet>
-<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#0b7d6e">Cargando el Proyecto Smart Campus…</div></sc-if>
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#14306b">Cargando el Proyecto Smart Campus…</div></sc-if>
 {{ app }}
 <sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;background:#14201d;color:#fff;padding:12px 18px;border-radius:10px;font-size:16px;font-weight:600;max-width:min(560px,calc(100vw - 32px));box-shadow:0 8px 24px rgba(0,0,0,.25)">{{ toast }}</div></sc-if>
 </x-dc>
@@ -27,9 +27,10 @@ class Component extends DCLogic {
   state = { st: null, ok: false, toast: '', nube: '' };
   componentDidMount() {
     let n = 0; const w = () => { if (window.PROY9 || n++ > 100) { this._ui = window.PROY9 && window.PROY9.make(React); this.setState({ ok: true }); return; } setTimeout(w, 100); }; w();
+    this._ap = setInterval(() => this.revisarApoyo(), 45000);
     this._tk = setInterval(() => { const st = this.state.st; if (!st || document.hidden || !document.hasFocus()) return; const t = Object.assign({}, st.tiempo); t[st.cur] = (t[st.cur] || 0) + 10; this.setState({ st: Object.assign({}, st, { tiempo: t }) }); }, 10000);
   }
-  componentWillUnmount() { clearInterval(this._tk); clearTimeout(this._cs); clearTimeout(this._ft); }
+  componentWillUnmount() { clearInterval(this._tk); clearInterval(this._ap); clearTimeout(this._cs); clearTimeout(this._ft); }
   componentDidUpdate() { const st = this.state.st; if (!st) return; const j = JSON.stringify(st); if (j === this._last) return; this._last = j; try { localStorage.setItem(LSK, j); } catch (e) {} if (!this._cs) this._cs = setTimeout(() => { this._cs = null; this.nube(); }, 20000); }
   local() { try { const s = JSON.parse(localStorage.getItem(LSK) || 'null'); return s && s.id ? s : null; } catch (e) { return null; } }
   url() { const u = String(CFG9().sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
@@ -45,17 +46,19 @@ class Component extends DCLogic {
     try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); this.setState({ nube: 'Guardado ✓ ' + new Date().toTimeString().slice(0, 5) }); }
     catch (e) { this.setState({ nube: 'Sin conexión: se guardó en esta computadora' }); }
   }
+  async revisarApoyo() { const st = this.state.st, url = this.url(); if (!st || !url || document.hidden) return;
+    try { const r = await fetch(url + '?id=' + encodeURIComponent(st.id)); const x = await r.json(); if (x && x.apoyo != null) { const ad = String(x.apoyo).trim().toLowerCase().startsWith('s'); const cur = this.state.st; if (cur && cur.id === st.id && !!cur.ad !== ad) { this.set({ ad }); this.flash(ad ? 'Su docente activó la versión con apoyo.' : 'Su docente desactivó la versión con apoyo.'); } } if (x && x.comentario && x.comentario !== this._com) { this._com = x.comentario; this.flash('Comentario del docente: ' + x.comentario); } } catch (e) {} }
   async continuar(cod) {
-    const L = this.local(); if (L && L.id === cod) { this.setState({ st: window.PROY9.norm(L) }); return true; }
+    const L = this.local(); if (L && L.id === cod) { this.setState({ st: window.PROY9.norm(L) }, () => this.revisarApoyo()); return true; }
     const url = this.url(); if (!url) return false;
-    try { const r = await fetch(url + '?id=' + encodeURIComponent(cod)); const d = await r.json(); if (d && d.proyecto && d.proyecto.id) { this.setState({ st: window.PROY9.norm(d.proyecto) }); if (d.comentario) this.flash('Comentario del docente: ' + d.comentario); return true; } } catch (e) {}
+    try { const r = await fetch(url + '?id=' + encodeURIComponent(cod)); const d = await r.json(); if (d && d.proyecto && d.proyecto.id) { const pr = window.PROY9.norm(d.proyecto); if (d.apoyo != null) pr.ad = String(d.apoyo).trim().toLowerCase().startsWith('s'); this._com = d.comentario || ''; this.setState({ st: pr }); if (d.comentario) this.flash('Comentario del docente: ' + d.comentario); return true; } } catch (e) {}
     return false;
   }
   renderVals() {
     const s = this.state, P = window.PROY9;
     const ctx = {
       set: o => this.set(o), flash: t => this.flash(t), guardar: () => this.nube(), cfg: CFG9(), local: this.local(), nubeTxt: s.nube,
-      iniciar: f => { const st = P.norm(Object.assign(P.nuevo(), { id: genId9(), a1: f.a1.trim(), a2: f.a2.trim(), par: f.par, ad: !!f.ad, creado: new Date().toISOString() })); this.setState({ st }, () => { this.nube(); this.flash('Su código para continuar es ' + st.id + '. ¡Anótenlo!'); }); },
+      iniciar: f => { const st = P.norm(Object.assign(P.nuevo(), { id: genId9(), a1: f.a1.trim(), a2: f.a2.trim(), par: f.par, ad: false, creado: new Date().toISOString() })); this.setState({ st }, () => { this.nube(); this.flash('Su código para continuar es ' + st.id + '. ¡Anótenlo!'); }); },
       continuar: c => this.continuar(c), seguirLocal: () => { const L = this.local(); if (L) this.setState({ st: P.norm(L) }); },
       salir: () => { this.nube(); this.setState({ st: null }); },
       entregar: html => { const st = this.state.st, d = new Date().toLocaleDateString('es-EC'); this.setState({ st: Object.assign({}, st, { done: Object.assign({}, st.done, { e8: true }), entregado: d }) }, () => { this.nube(html); this.flash('¡Proyecto entregado! Se creó el reporte para el docente.'); }); }
