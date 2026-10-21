@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<script src="./ejemplos.js"></script>
+<script src="./control.js" data-curso="8"></script>
+<script src="./reto8.js"></script>
+<style>html,body{margin:0;background:#f3f4f8;color:#0a1a3a;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#163a80}input,textarea,select,button{font-family:inherit}</style>
+</helmet>
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#14306b">Cargando el reto…</div></sc-if>
+<div>{{ app }}</div>
+<sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;background:#0a1a3a;color:#fff;border:2px solid #f6d43a;border-radius:12px;padding:14px 20px;font-weight:700;font-size:16px;max-width:min(560px,calc(100vw - 32px));text-align:center">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LSK = 'reto8_v1';
+class Component extends DCLogic {
+  state = { st: null, ok: false, toast: '', nube: '' };
+  componentDidMount() { let n = 0; const w = () => { if (window.RETO8 || n++ > 100) { this._ui = window.RETO8 && window.RETO8.make(React); this.setState({ ok: true }); return; } setTimeout(w, 100); }; w(); }
+  componentDidUpdate() { const st = this.state.st; if (!st) return; const j = JSON.stringify(st); if (j === this._last) return; this._last = j; try { localStorage.setItem(LSK, j); } catch (e) { try { localStorage.setItem(LSK, JSON.stringify(Object.assign({}, st, { img: '' }))); } catch (x) {} } }
+  local() { try { const s = JSON.parse(localStorage.getItem(LSK) || 'null'); return s && s.id ? s : null; } catch (e) { return null; } }
+  url() { const u = String((window.ARTICULO_CONFIG || {}).sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  flash(t) { this.setState({ toast: t }); clearTimeout(this._ft); this._ft = setTimeout(() => this.setState({ toast: '' }), 3600); }
+  set(o) { this.setState({ st: Object.assign({}, this.state.st, o) }); }
+  async enviar() {
+    const st = this.state.st, R = window.RETO8, url = this.url(); if (!st || !R) return;
+    const N = R.nota(st), P = R.PROY[st.proy], fecha = new Date().toLocaleString('es-EC');
+    if (!url) { this.set({ enviado: fecha }); this.setState({ nube: 'Modo demo: no hay hoja de Google configurada.' }); return; }
+    this.setState({ nube: 'Enviando…' });
+    const body = { modo: 'r8', id: st.id, paralelo: '8vo ' + st.par, autores: st.a1 + ' y ' + st.a2, pc: st.pc, proyecto: P ? P.n : '', nota: N.t, detalle: 'Aprende ' + N.a + '/2 · Secuencia ' + N.b + '/4 · Enlace ' + N.c + '/2 · Captura ' + N.d + '/2 · ' + st.qerr + ' errores en preguntas · ' + st.chk + ' comprobaciones fallidas' + (st.ayuda ? ' · usó ayuda' : ''), tinkercad: st.link, codigo: R.codigo(P, st.pasos, st).join('\n'), img: st.img };
+    try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); this.set({ enviado: fecha, done: Object.assign({}, st.done, { fin: true }) }); this.setState({ nube: 'Entregado ✓ · el docente ya lo ve en su hoja.' }); this.flash('¡Reto entregado! Nota ' + N.t + ' / 10'); }
+    catch (e) { this.setState({ nube: 'No se pudo enviar. Revisen el internet y vuelvan a intentar.' }); }
+  }
+  renderVals() {
+    const s = this.state, R = window.RETO8;
+    const ctx = { set: o => this.set(o), flash: t => this.flash(t), enviar: () => this.enviar(), nube: s.nube, local: this.local(),
+      iniciar: f => this.setState({ st: Object.assign(R.nuevo(), { a1: f.a1.trim(), a2: f.a2.trim(), par: f.par, pc: f.pc }), nube: '' }),
+      seguir: () => { const L = this.local(); if (L) this.setState({ st: L }); }, salir: () => this.setState({ st: null }) };
+    return { cargando: !s.ok, app: s.ok && this._ui ? React.createElement(this._ui.App, { st: s.st, ctx }) : null, hayToast: !!s.toast, toast: s.toast };
+  }
+}
+</script>
+</body>
+</html>

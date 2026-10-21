@@ -53,7 +53,13 @@
           ...SL.map((_, k) => h('button', { key: k, onClick: () => onNav(k), style: { width: 38, height: 38, borderRadius: 19, border: '2px solid ' + C.acc, background: k === n ? C.acc : '#fff', color: k === n ? '#fff' : C.acc, fontWeight: 700, cursor: 'pointer' } }, String(k + 1))),
           h('button', { onClick: () => onNav(n + 1), disabled: n === SL.length - 1, style: { background: C.acc, color: '#fff', border: 'none', borderRadius: 8, fontFamily: HD, fontSize: 17, padding: '10px 20px', cursor: 'pointer', opacity: n === SL.length - 1 ? 0.4 : 1 } }, 'Siguiente ▶')) : null);
     }
-    return { Ejemplo, total: SL.length };
+    function Mini({ i }) { const S = SL[i];
+      return D({ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,340px),1fr))', gap: 16, alignItems: 'center', background: '#f7f9ff', borderRadius: 12, padding: 14 },
+        D({ display: 'flex', flexDirection: 'column', gap: 10 }, D({ fontFamily: HD, fontSize: 20, color: C.ink }, S.t), ...S.p.map((x, k) => D({ key: k, display: 'flex', gap: 10, fontSize: 16, lineHeight: 1.45 }, D({ flex: 'none', width: 24, height: 24, borderRadius: 12, background: C.gold, fontFamily: HD, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }, String(k + 1)), D({}, x)))),
+        S.v ? D({ display: 'flex', justifyContent: 'center', background: '#fff', border: '2px solid ' + C.line, borderRadius: 12, padding: 12, minWidth: 0 }, (VIS[S.v] || VIS.sim)()) : null);
+    }
+    return { Ejemplo, Mini, total: SL.length };
   }
-  window.EJEMPLO9 = { make, total: SL.length };
+  let cache = null;
+  window.EJEMPLO9 = { make, total: SL.length, etapa: (React, k) => { if (!cache) cache = make(React); const i = Math.max(1, Math.min(SL.length - 1, Number(String(k).replace(/\D/g, '')) || 1)); return React.createElement(cache.Mini, { key: 'm' + i, i }); } };
 })();
