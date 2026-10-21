@@ -33,7 +33,7 @@
 <div style="background:#fff;border:1px solid #d9d3c6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px">
 <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:#56605d;font-weight:600">CONTINUAR UN ARTÍCULO</div>
 <sc-if value="{{ hayLocal }}" hint-placeholder-val="{{ false }}"><button onClick="{{ seguirLocal }}" style="align-self:flex-start;background:#3b2f5c;color:#fff;border:none;border-radius:8px;padding:11px 18px;font-size:16px;font-weight:600;cursor:pointer">Seguir: {{ localNom }}</button></sc-if>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><input value="{{ f.cod }}" onChange="{{ setCod }}" placeholder="Código SC-…" style="font-size:17px;padding:11px;border:2px solid #d9d3c6;border-radius:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;max-width:220px"><button onClick="{{ recuperar }}" style="background:#fff;color:#3b2f5c;border:2px solid #3b2f5c;border-radius:8px;padding:10px 16px;font-size:16px;font-weight:600;cursor:pointer">Recuperar</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><input value="{{ f.cod }}" onChange="{{ setCod }}" placeholder="Código SC-… o INV-…" style="font-size:17px;padding:11px;border:2px solid #d9d3c6;border-radius:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;max-width:220px"><button onClick="{{ recuperar }}" style="background:#fff;color:#3b2f5c;border:2px solid #3b2f5c;border-radius:8px;padding:10px 16px;font-size:16px;font-weight:600;cursor:pointer">Recuperar</button></div>
 </div>
 <div style="font-size:16px;font-weight:600;color:#b0362b;min-height:22px">{{ msg }}</div>
 </div>
@@ -80,7 +80,11 @@ class Component extends DCLogic {
   set(o) { this.setState(s => ({ st: Object.assign({}, s.st, o) })); }
   abrir(st) { this.setState({ fase: 'app', st: Object.assign(window.SMARTCAMPUS.nuevo(), st), msg: '' }); }
   async buscar(id) { if (!id) return null; try { const L = JSON.parse(localStorage.getItem('sc_proj_' + id) || 'null'); if (L && !this.url()) return L; } catch (e) {} const u = this.url(); if (!u) return null; try { const r = JSON.parse(await (await fetch(u + (u.includes('?') ? '&' : '?') + 'id=' + encodeURIComponent(id))).text()); return r && r.proyecto; } catch (e) { return null; } }
-  async recuperar() { const c = String(this.state.f.cod || '').trim().toUpperCase(); if (!c) { this.setState({ msg: 'Escriban su código.' }); return; } this.setState({ msg: 'Buscando…' }); const p = await this.buscar(c); if (p && p.v === 'sc1') this.abrir(p); else this.setState({ msg: 'No se encontró ese código o no hay conexión.' }); }
+  async recuperar() { const c = String(this.state.f.cod || '').trim().toUpperCase(); if (!c) { this.setState({ msg: 'Escriban su código.' }); return; } this.setState({ msg: 'Buscando…' }); const p = await this.buscar(c); if (p && p.v === 'sc1') { this.abrir(p); return; }
+    if (p && (p.arts || /^INV-/.test(c))) { try { localStorage.setItem(LSM, JSON.stringify(p)); } catch (e) {} const ya = (() => { for (let k = 0; k < localStorage.length; k++) { const key = localStorage.key(k); if (!/^sc_proj_/.test(key)) continue; try { const q = JSON.parse(localStorage.getItem(key)); if (q && q.desde === c) return q; } catch (e) {} } try { const q = JSON.parse(localStorage.getItem(LSK) || 'null'); if (q && q.desde === c) return q; } catch (e) {} return null; })();
+      if (ya) { this.abrir(ya); this.flash('Siguen con su artículo ' + ya.id + '. Anoten este código nuevo.'); return; }
+      this.abrir({ id: genId(), a1: p.a1 || '', a2: p.a2 || '', paralelo: String(p.par || p.paralelo || '').toUpperCase(), apoyo: !!p.apoyo, desde: c }); setTimeout(() => { this.importar(); this.flash('Su investigación ' + c + ' se cargó. Su artículo nuevo tiene otro código: anótenlo.'); }, 400); return; }
+    this.setState({ msg: 'No se encontró ese código. Revisen que esté bien escrito (SC-XXXXX o INV-XXXXX) y que haya internet.' }); }
   async nube(final, html) {
     const st = this.state.st, u = this.url(); if (!st) return; const SC = window.SMARTCAMPUS, R = SC.evalua(st);
     if (!u) { this.setState({ nube: 'Guardado en esta computadora · ' + new Date().toTimeString().slice(0, 5) }); if (final) this.flash(html ? 'Artículo entregado ✓ (modo sin conexión)' : 'Guardado ✓'); return; }
