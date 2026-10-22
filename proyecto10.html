@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<script src="./proyecto10-config.js"></script>
+<script src="./proyecto10.js"></script>
+<script src="./ejemplo10.js"></script>
+<style>html,body{margin:0;background:#f3f4f8;color:#0a1a3a;font-family:'IBM Plex Sans',sans-serif}a{color:#2456b8}a:hover{color:#163a80}input,textarea,select,button{font-family:inherit}@keyframes p9spin{to{transform:rotate(360deg)}}@keyframes p9flow{to{stroke-dashoffset:-36}}@keyframes p9drop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(46px);opacity:0}}@keyframes p9wave{from{opacity:.25}to{opacity:1}}</style>
+</helmet>
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#14306b">Cargando el Proyecto Smart Campus…</div></sc-if>
+{{ app }}
+<sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;background:#14201d;color:#fff;padding:12px 18px;border-radius:10px;font-size:16px;font-weight:600;max-width:min(560px,calc(100vw - 32px));box-shadow:0 8px 24px rgba(0,0,0,.25)">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LSK = 'proyecto10mo_v1';
+const CFG9 = () => Object.assign({ sheetsUrl: '' }, window.ARTICULO_CONFIG || {}, window.PROY10_CONFIG || {});
+const genId9 = () => { const a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s = 'P10-'; for (let i = 0; i < 5; i++) s += a[Math.floor(Math.random() * a.length)]; return s; };
+class Component extends DCLogic {
+  state = { st: null, ok: false, toast: '', nube: '' };
+  componentDidMount() {
+    let n = 0; const w = () => { if (window.PROY10 || n++ > 100) { this._ui = window.PROY10 && window.PROY10.make(React); this.setState({ ok: true }); return; } setTimeout(w, 100); }; w();
+    this._ap = setInterval(() => this.revisarApoyo(), 45000);
+    this._cl = setInterval(() => this.revisarClase(), 3000); this.revisarClase();
+    this._out = null; this._vis = () => this.salida(document.hidden ? 'out' : 'in'); this._blr = () => this.salida('out'); this._foc = () => this.salida('in');
+    document.addEventListener('visibilitychange', this._vis); window.addEventListener('blur', this._blr); window.addEventListener('focus', this._foc);
+    this._tk = setInterval(() => { const st = this.state.st; if (!st || document.hidden || !document.hasFocus()) return; const t = Object.assign({}, st.tiempo); t[st.cur] = (t[st.cur] || 0) + 10; this.setState({ st: Object.assign({}, st, { tiempo: t }) }); }, 10000);
+  }
+  componentWillUnmount() { clearInterval(this._tk); clearInterval(this._ap); clearInterval(this._cl); document.removeEventListener('visibilitychange', this._vis); window.removeEventListener('blur', this._blr); window.removeEventListener('focus', this._foc); clearTimeout(this._cs); clearTimeout(this._ft); }
+  componentDidUpdate() { const st = this.state.st; if (!st) return; const j = JSON.stringify(st); if (j === this._last) return; this._last = j; try { localStorage.setItem(LSK, j); } catch (e) {} if (!this._cs) this._cs = setTimeout(() => { this._cs = null; this.nube(); }, 20000); }
+  local() { try { const s = JSON.parse(localStorage.getItem(LSK) || 'null'); return s && s.id ? s : null; } catch (e) { return null; } }
+  url() { const u = String(CFG9().sheetsUrl || '').trim(); return /^https:\/\/script\.google(usercontent)?\.com\//.test(u) ? u : ''; }
+  flash(t) { this.setState({ toast: t }); clearTimeout(this._ft); this._ft = setTimeout(() => this.setState({ toast: '' }), 3600); }
+  set(o) { this.setState({ st: Object.assign({}, this.state.st, o) }); }
+  async nube(html) {
+    const st = this.state.st, url = this.url(); if (!st) return;
+    if (!url) { this.setState({ nube: 'Guardado en esta computadora' }); return; }
+    const R = window.PROY10.resumen(st);
+    const body = { modo: 'p9', pc: st.pc || this._pc || '', id: st.id, paralelo: '10mo ' + st.par, autores: st.a1 + ' y ' + st.a2, titulo: R.idea, idea: R.idea, etapas: R.etapas, nota: R.nota, detalle: R.detalle, tinkercad: R.tinkercad, apoyo: st.ad ? 'Sí' : 'No', json: JSON.stringify(st) };
+    if (html) body.html = html;
+    this.setState({ nube: 'Guardando…' });
+    try { await fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); this.setState({ nube: 'Guardado ✓ ' + new Date().toTimeString().slice(0, 5) }); }
+    catch (e) { this.setState({ nube: 'Sin conexión: se guardó en esta computadora' }); }
+  }
+  netOk(k) { const c = this.state.clase || {}; return !!c.net || !!c.on || ['e1', 'e2', 'e4', 'e7', 'e8'].includes(k); }
+  async revisarClase() { const url = this.url(); if (!url || this._clBusy) return; this._clBusy = true;
+    try { const r = await fetch(url + '?curso=10&clase9=1'); const x = await r.json(); const c = this.state.clase || {}; if (x.on !== c.on || x.i !== c.i || x.net !== c.net) this.setState({ clase: x }); } catch (e) {} this._clBusy = false; }
+  registrar(evento, etapa, detalle) { const st = this.state.st, url = this.url(); if (!st || !url) return;
+    fetch(url, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modo: 'p9log', curso: 10, id: st.id, paralelo: '10mo ' + st.par, autores: st.a1 + ' y ' + st.a2, pc: st.pc || this._pc || '', evento, etapa: etapa || '', detalle: detalle || '' }) }).catch(() => {}); }
+  salida(tipo) { const st = this.state.st; if (!st) { this._out = null; return; }
+    if (tipo === 'out') { if (!this._out) this._out = { t: Date.now(), k: st.cur }; return; }
+    const o = this._out; this._out = null; if (!o || document.hidden) { if (o && document.hidden) this._out = o; return; }
+    const seg = (Date.now() - o.t) / 1000; if (seg < 4) return;
+    if (seg >= 480) { this.registrar('Pausa', o.k, 'Fuera ' + Math.round(seg / 60) + ' min (recreo o suspensión): no cuenta como salida'); return; }
+    if (this.netOk(o.k)) return;
+    this.registrar('Salida', o.k, 'Fuera ' + Math.round(seg) + ' s'); this.flash('Salieron de la página en una etapa sin internet (' + Math.round(seg) + ' s). Quedó registrado para el docente.'); }
+  async revisarApoyo() { const st = this.state.st, url = this.url(); if (!st || !url || document.hidden) return;
+    try { const r = await fetch(url + '?id=' + encodeURIComponent(st.id)); const x = await r.json(); if (x && x.apoyo != null) { const ad = String(x.apoyo).trim().toLowerCase().startsWith('s'); const cur = this.state.st; if (cur && cur.id === st.id && !!cur.ad !== ad) { this.set({ ad }); this.flash(ad ? 'Su docente activó la versión con apoyo.' : 'Su docente desactivó la versión con apoyo.'); } } if (x && x.comentario && x.comentario !== this._com) { this._com = x.comentario; this.flash('Comentario del docente: ' + x.comentario); } } catch (e) {} }
+  async continuar(cod) {
+    const L = this.local(); if (L && L.id === cod) { this.setState({ st: window.PROY10.norm(L) }, () => this.revisarApoyo()); return true; }
+    const url = this.url(); if (!url) return false;
+    try { const r = await fetch(url + '?id=' + encodeURIComponent(cod)); const d = await r.json(); if (d && d.proyecto && d.proyecto.id) { const pr = window.PROY10.norm(d.proyecto); if (d.apoyo != null) pr.ad = String(d.apoyo).trim().toLowerCase().startsWith('s'); this._com = d.comentario || ''; this.setState({ st: pr }); if (d.comentario) this.flash('Comentario del docente: ' + d.comentario); return true; } } catch (e) {}
+    return false;
+  }
+  entrar() { const st = this.state.st; if (!st) return; if (this._pc && st.pc !== this._pc) this.set({ pc: this._pc }); setTimeout(() => { this.registrar('Entrada', st.cur, 'PC ' + (this._pc || st.pc || '')); this.nube(); this.revisarApoyo(); }, 300); }
+  renderVals() {
+    const s = this.state, P = window.PROY10;
+    const ctx = {
+      set: o => this.set(o), flash: t => this.flash(t), guardar: () => this.nube(), cfg: CFG9(), local: this.local(), nubeTxt: s.nube,
+      prep: o => { this._pc = o.pc; }, netOk: k => this.netOk(k),
+      iniciar: f => { const st = P.norm(Object.assign(P.nuevo(), { id: genId9(), a1: f.a1.trim(), a2: f.a2.trim(), par: f.par, ad: false, pc: this._pc, creado: new Date().toISOString() })); this.setState({ st }, () => { this.entrar(); this.flash('Su código para continuar es ' + st.id + '. ¡Anótenlo!'); }); },
+      continuar: async c => { const r = await this.continuar(c); if (r) this.entrar(); return r; }, seguirLocal: () => { const L = this.local(); if (L) this.setState({ st: P.norm(L) }, () => this.entrar()); },
+      salir: () => { this.registrar('Salida del sistema', (this.state.st || {}).cur, ''); this.nube(); this.setState({ st: null }); },
+      entregar: html => { const st = this.state.st, d = new Date().toLocaleDateString('es-EC'); this.setState({ st: Object.assign({}, st, { done: Object.assign({}, st.done, { e8: true }), entregado: d }) }, () => { this.nube(html); this.flash('¡Proyecto entregado! Se creó el reporte para el docente.'); }); }
+    };
+    const cl = s.clase || {}, EJ = window.EJEMPLO10 && (this._ej || (this._ej = window.EJEMPLO10.make(React)));
+    if (cl.on && EJ && s.st) return { cargando: false, app: React.createElement(EJ.Ejemplo, { i: cl.i, docente: false }), hayToast: !!s.toast, toast: s.toast };
+    return { cargando: !s.ok, app: s.ok && this._ui ? React.createElement(this._ui.App, { st: s.st, ctx }) : null, hayToast: !!s.toast, toast: s.toast };
+  }
+}
+</script>
+</body>
+</html>
