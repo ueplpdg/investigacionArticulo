@@ -71,7 +71,7 @@ class Component extends DCLogic {
     const st = this.state.st, u = URL_(); if (!st || !st.id || st.demo || !u || !window.RUTA) return;
     const M = this._ui, N = M.notas(st), errs = {}, LL = M.LVX(st), done = LL.filter(l => (st.lv[l.id] || {}).done);
     Object.values(st.lv || {}).forEach(L => Object.keys(L.errs || {}).forEach(k => { errs[k] = (errs[k] || 0) + L.errs[k]; }));
-    const p = Object.assign({ modo: 'ruta', id: st.id, curso: st.curso, par: st.par, pc: st.pc, integrantes: st.a1 + ' · ' + st.a2, nivel: Math.min(LL.length, done.length + 1), niveles: done.map(l => l.n).join(', '), c1: N.c1, c2: N.c2, pr: N.pr, fin: N.fin, errores: JSON.stringify(errs), salidas: st.salidas || 0, json: JSON.stringify(st) }, extra || {});
+    const p = Object.assign({ modo: 'ruta', id: st.id, curso: st.curso, par: st.par, pc: st.pc, integrantes: st.a1 + ' · ' + st.a2, nivel: Math.min(LL.length, done.length + 1), niveles: done.map(l => l.n).join(', ') + (st.taller && st.taller.cur && M.TPm[st.taller.cur] ? ' | Taller: ' + M.TPm[st.taller.cur].n + ' · etapa ' + ((((st.taller.p || {})[st.taller.cur] || {}).et || 0) + 1) + '/8' : ''), c1: N.c1, c2: N.c2, pr: N.pr, fin: N.fin, errores: JSON.stringify(errs), salidas: st.salidas || 0, json: JSON.stringify(st) }, extra || {});
     const body = JSON.stringify(p); if (extra && extra.beacon && navigator.sendBeacon) { navigator.sendBeacon(u, new Blob([body], { type: 'text/plain' })); return; }
     fetch(u, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body }).then(() => { this._ultimo = Date.now(); }).catch(() => { this._pend = true; });
   }
