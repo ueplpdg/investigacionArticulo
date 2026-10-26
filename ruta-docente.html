@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel docente · Ruta del Algoritmo</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<script src="./preu.js"></script>
+<script src="./ruta.js"></script>
+<style>html,body{margin:0;background:#f4f4fa;color:#1b1d4a;font-family:'IBM Plex Sans',sans-serif}a{color:#343982}a:hover{color:#262a63}input,textarea,select,button{font-family:inherit}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<div style="background:#343982;color:#fff;padding:10px clamp(14px,3vw,32px);display:flex;align-items:center;gap:14px;border-bottom:6px solid #F9B90F;box-shadow:inset 0 -9px 0 #A8122F">
+<div style="background:#fff;border-radius:50%;padding:3px;display:flex;flex:none"><img src="./logo-providencia.png" alt="Logo U. E. P. La Providencia, Azogues" style="width:38px;height:auto;display:block"></div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font-family:'Archivo Black',sans-serif;font-size:clamp(18px,2vw,26px);line-height:1.1">Panel docente · Ruta del Algoritmo</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:#F9B90F">MONITOR EN VIVO · SESIÓN · GUION · SOLUCIONARIO</div>
+</div>
+</div>
+<div style="flex:1;padding:clamp(14px,2.4vw,30px)">
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="padding:60px 0;text-align:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#343982">Cargando el panel…</div></sc-if>
+{{ app }}
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ok: false };
+  componentDidMount() { let n = 0; const w = () => { if (window.RUTA || n++ > 100) { this._ui = window.RUTA && window.RUTA.make(React); this.setState({ ok: true }); return; } setTimeout(w, 100); }; w(); }
+  renderVals() {
+    const M = this._ui;
+    return { cargando: !this.state.ok, app: this.state.ok && M ? React.createElement(M.Panel, { url: ((window.ARTICULO_CONFIG || {}).sheetsUrl || '').trim() }) : null };
+  }
+}
+</script>
+</body>
+</html>

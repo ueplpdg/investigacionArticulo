@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recuperar código · 3.º BGU</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<style>html,body{margin:0;background:#f4f4fa;color:#1b1d4a;font-family:'IBM Plex Sans',sans-serif}a{color:#343982}a:hover{color:#262a63}input,button{font-family:inherit}@media print{.noprint{display:none!important}body{background:#fff}}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<div style="background:#343982;color:#fff;padding:10px clamp(14px,3vw,32px);display:flex;align-items:center;gap:14px;border-bottom:6px solid #F9B90F;box-shadow:inset 0 -9px 0 #A8122F">
+<div style="background:#fff;border-radius:50%;padding:3px;display:flex;flex:none"><img src="./logo-providencia.png" alt="Logo U. E. P. La Providencia, Azogues" style="width:38px;height:auto;display:block"></div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<div style="font-family:'Archivo Black',sans-serif;font-size:clamp(18px,2vw,26px);line-height:1.1">Recuperar código · 3.º BGU</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:#F9B90F">MISIÓN INVESTIGADOR · ARTÍCULO SMART CAMPUS</div>
+</div>
+</div>
+<div style="max-width:1100px;width:100%;box-sizing:border-box;margin:0 auto;padding:clamp(14px,2.4vw,30px);display:flex;flex-direction:column;gap:18px">
+<div class="noprint" style="display:flex;gap:10px;flex-wrap:wrap">
+<button onClick="{{ verAlumno }}" style="padding:10px 18px;border-radius:999px;border:2px solid #343982;background:{{ bgA }};color:{{ fgA }};font-weight:700;font-size:16px;cursor:pointer">Soy estudiante</button>
+<button onClick="{{ verDocente }}" style="padding:10px 18px;border-radius:999px;border:2px solid #343982;background:{{ bgD }};color:{{ fgD }};font-weight:700;font-size:16px;cursor:pointer">Soy docente · verificar</button>
+</div>
+<sc-if value="{{ esAlumno }}" hint-placeholder-val="{{ true }}">
+<div style="background:#fff;border:2px solid #d9dbea;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;max-width:640px">
+<div style="font-family:'Archivo Black',sans-serif;font-size:30px;line-height:1.1">¿Olvidaron su código?</div>
+<div style="font-size:18px;line-height:1.5">Escriban el apellido de uno de los integrantes y elijan su paralelo.</div>
+<input value="{{ ape }}" onChange="{{ onApe }}" placeholder="Apellido" style="font-size:20px;padding:12px 14px;border:2px solid #d9dbea;border-radius:10px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ pars }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.on }}" style="padding:9px 16px;border-radius:999px;border:2px solid #343982;background:{{ p.bg }};color:{{ p.fg }};font-weight:700;font-size:16px;cursor:pointer">{{ p.n }}</button></sc-for>
+</div>
+<button onClick="{{ buscar }}" style="align-self:flex-start;background:#343982;color:#fff;border:none;border-radius:10px;padding:13px 22px;font-size:18px;font-weight:700;cursor:pointer">Buscar mi código</button>
+<div style="font-size:17px;font-weight:700;color:#A8122F">{{ msgA }}</div>
+<sc-for list="{{ res }}" as="r" hint-placeholder-count="0">
+<div style="border:2px solid #1d7a44;background:#e6f4ea;border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:700;color:#343982;letter-spacing:.06em">{{ r.codigo }}</div>
+<div style="font-size:16px;font-weight:600">{{ r.autores }}</div>
+<div style="font-size:15px;color:#55587a">{{ r.det }}</div>
+</div>
+</sc-for>
+<div style="font-size:15px;color:#55587a;line-height:1.5">Anoten el código en el cuaderno. Luego abran la Misión o el Artículo y escríbanlo en «Continuar».</div>
+</div>
+</sc-if>
+<sc-if value="{{ esDocente }}" hint-placeholder-val="{{ false }}">
+<div class="noprint" style="background:#fff;border:2px solid #d9dbea;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px">
+<div style="font-family:'Archivo Black',sans-serif;font-size:26px">Verificar lo guardado en la nube</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<input type="password" value="{{ clave }}" onChange="{{ onClave }}" placeholder="Clave del docente" style="font-size:18px;padding:10px 12px;border:2px solid #d9dbea;border-radius:10px">
+<sc-for list="{{ pars }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.on }}" style="padding:9px 16px;border-radius:999px;border:2px solid #343982;background:{{ p.bg }};color:{{ p.fg }};font-weight:700;font-size:16px;cursor:pointer">{{ p.n }}</button></sc-for>
+<button onClick="{{ verificar }}" style="background:#343982;color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:17px;font-weight:700;cursor:pointer">Verificar</button>
+<button onClick="{{ imprimir }}" style="background:#fff;color:#343982;border:2px solid #343982;border-radius:10px;padding:9px 16px;font-size:16px;font-weight:700;cursor:pointer">Imprimir lista de códigos</button>
+</div>
+<div style="font-size:16px;font-weight:700;color:{{ msgDColor }}">{{ msgD }}</div>
+</div>
+<sc-if value="{{ hayLista }}" hint-placeholder-val="{{ false }}">
+<div style="font-family:'Archivo Black',sans-serif;font-size:22px">3.º BGU {{ parSel }} · códigos de las parejas</div>
+<div style="overflow-x:auto">
+<table style="border-collapse:collapse;width:100%;background:#fff;font-size:15px">
+<thead><tr><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">Código</th><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">Integrantes</th><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">Título / tema</th><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">Avance</th><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">En la nube</th><th style="text-align:left;padding:8px 10px;background:#343982;color:#fff">Última vez</th></tr></thead>
+<tbody>
+<sc-for list="{{ lista }}" as="r" hint-placeholder-count="0">
+<tr style="border-bottom:1px solid #d9dbea;background:{{ r.bg }}"><td style="padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:17px">{{ r.codigo }}</td><td style="padding:8px 10px">{{ r.autores }}</td><td style="padding:8px 10px">{{ r.titulo }}</td><td style="padding:8px 10px">{{ r.progreso }}</td><td style="padding:8px 10px;font-weight:700;color:{{ r.nc }}">{{ r.nube }}</td><td style="padding:8px 10px;white-space:nowrap">{{ r.visto }}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="font-size:15px;color:#55587a;line-height:1.5">«⚠ Solo en la computadora»: esa pareja debe sentarse en la misma computadora de la clase anterior, abrir su trabajo y esperar 15 segundos para que se suba a la nube.</div>
+</sc-if>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const U3 = () => ((window.ARTICULO_CONFIG || {}).sheetsUrl || '').trim();
+class Component extends DCLogic {
+  state = { modo: 'a', ape: '', par: '', res: [], msgA: '', clave: '', lista: null, msgD: '', ok: false };
+  async buscar() {
+    const s = this.state, u = U3();
+    if (!u) { this.setState({ msgA: 'La plataforma no está conectada a la hoja de Google.' }); return; }
+    if (s.ape.trim().length < 3 || !s.par) { this.setState({ msgA: 'Escriban un apellido (3 letras o más) y elijan el paralelo.' }); return; }
+    this.setState({ msgA: 'Buscando…', res: [] });
+    try { const r = JSON.parse(await (await fetch(u + '?buscar=' + encodeURIComponent(s.ape.trim()) + '&par=' + s.par + '&t=' + Date.now())).text()); const res = r.res || []; this.setState({ res, msgA: res.length ? '' : 'No se encontró. Prueben con el apellido del otro integrante o pregunten al docente.' }); } catch (e) { this.setState({ msgA: 'No hay conexión. Revisen el internet.' }); }
+  }
+  async verificar() {
+    const s = this.state, u = U3();
+    if (!u) { this.setState({ msgD: 'Falta la dirección de Google Sheets en config.js.', ok: false }); return; }
+    this.setState({ msgD: 'Verificando…' });
+    try { const r = JSON.parse(await (await fetch(u + '?verif=' + encodeURIComponent(s.clave) + '&par=' + (s.par || '') + '&t=' + Date.now())).text()); if (r.error) { this.setState({ msgD: 'Clave incorrecta.', ok: false }); return; } const L = (r.res || []).sort((a, b) => String(a.autores).localeCompare(String(b.autores))); const sin = L.filter(x => !x.nube).length; this.setState({ lista: L, ok: !sin, msgD: L.length + ' parejas registradas' + (s.par ? ' en ' + s.par : '') + ' · ' + (sin ? sin + ' sin respaldo en la nube (en amarillo)' : 'todas respaldadas en la nube ✓') }); } catch (e) { this.setState({ msgD: 'No se pudo conectar. Publiquen la versión nueva del script.', ok: false }); }
+  }
+  renderVals() {
+    const s = this.state, A = s.modo === 'a';
+    return {
+      esAlumno: A, esDocente: !A, bgA: A ? '#343982' : '#fff', fgA: A ? '#fff' : '#343982', bgD: !A ? '#343982' : '#fff', fgD: !A ? '#fff' : '#343982',
+      verAlumno: () => this.setState({ modo: 'a' }), verDocente: () => this.setState({ modo: 'd' }),
+      ape: s.ape, onApe: e => this.setState({ ape: e.target.value }), clave: s.clave, onClave: e => this.setState({ clave: e.target.value }),
+      pars: ['A', 'B', 'C', 'D', 'E'].map(p => ({ n: p, bg: s.par === p ? '#343982' : '#fff', fg: s.par === p ? '#fff' : '#343982', on: () => this.setState({ par: s.par === p ? '' : p }) })),
+      buscar: () => this.buscar(), msgA: s.msgA, res: s.res.map(r => Object.assign({}, r, { det: '3.º BGU ' + r.paralelo + (r.titulo ? ' · ' + r.titulo : '') + (r.progreso !== '' && r.progreso != null ? ' · avance ' + r.progreso : '') })),
+      verificar: () => this.verificar(), imprimir: () => window.print(), msgD: s.msgD, msgDColor: s.ok ? '#1d7a44' : '#9a6400',
+      hayLista: !!(s.lista && s.lista.length), parSel: s.par || '(todos)',
+      lista: (s.lista || []).map(r => ({ codigo: r.codigo, autores: r.autores, titulo: r.titulo || '—', progreso: r.progreso === '' || r.progreso == null ? '—' : String(r.progreso), nube: r.nube ? '✓ Sí' + (r.word ? ' · Word' : '') : '⚠ Solo en la computadora', nc: r.nube ? '#1d7a44' : '#9a6400', visto: r.visto, bg: r.nube ? '#fff' : '#fff4d1' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

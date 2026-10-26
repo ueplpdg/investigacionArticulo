@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ruta del Algoritmo · U. E. P. La Providencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="./config.js"></script>
+<script src="./preu.js"></script>
+<script src="./ruta.js"></script>
+<style>html,body{margin:0;background:#f4f4fa;color:#1b1d4a;font-family:'IBM Plex Sans',sans-serif}a{color:#343982}a:hover{color:#262a63}input,textarea,select,button{font-family:inherit}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<div style="background:#343982;color:#fff;padding:10px clamp(14px,3vw,32px);display:flex;align-items:center;gap:14px;border-bottom:6px solid #F9B90F;box-shadow:inset 0 -9px 0 #A8122F">
+<div style="background:#fff;border-radius:50%;padding:3px;display:flex;flex:none"><img src="./logo-providencia.png" alt="Logo U. E. P. La Providencia, Azogues" style="width:38px;height:auto;display:block"></div>
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+<div style="font-family:'Archivo Black',sans-serif;font-size:clamp(18px,2vw,26px);line-height:1.1">Ruta del Algoritmo</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;color:#F9B90F">ROBÓTICA · 8.º · 9.º · 10.º EGB · RUTA PRE-U 3.º BGU</div>
+</div>
+</div>
+<div style="flex:1;padding:clamp(14px,2.4vw,30px)">
+<sc-if value="{{ cargando }}" hint-placeholder-val="{{ true }}"><div style="padding:60px 0;text-align:center;font-family:'Archivo Black',sans-serif;font-size:24px;color:#343982">Cargando la Ruta…</div></sc-if>
+{{ app }}
+</div>
+</div>
+<sc-if value="{{ hayAviso }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;background:rgba(10,26,58,.92);display:flex;align-items:center;justify-content:center;padding:24px">
+<div style="background:#fff;border-radius:16px;padding:28px;max-width:520px;display:flex;flex-direction:column;gap:14px;text-align:center">
+<div style="font-family:'Archivo Black',sans-serif;font-size:28px;color:#A8122F">Salieron de la Ruta</div>
+<div style="font-size:18px;line-height:1.5">La salida quedó registrada para el docente ({{ salidas }} en total). Sigan trabajando solo en esta página.</div>
+<button onClick="{{ cerrarAviso }}" style="background:#343982;color:#fff;border:none;border-radius:10px;padding:14px 20px;font-size:18px;font-weight:700;cursor:pointer">Volver a la Ruta</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ hayToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;background:#1b1d4a;color:#fff;padding:12px 18px;border-radius:10px;font-size:16px;font-weight:600;max-width:min(560px,calc(100vw - 32px))">{{ toast }}</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LSK = 'ruta_algoritmo_v1';
+const URL_ = () => ((window.ARTICULO_CONFIG || {}).sheetsUrl || '').trim();
+class Component extends DCLogic {
+  state = { st: null, ok: false, toast: '', aviso: false };
+  componentDidMount() {
+    const demo = /[?&]demo=1/.test(location.search);
+    let st = null;
+    if (demo) st = { id: 'R-DEMO0', curso: '9no', par: 'A', pc: '0', a1: 'Modo demostración', a2: 'Docente', lv: {}, salidas: 0, demo: true };
+    else { try { st = JSON.parse(localStorage.getItem(LSK) || 'null'); } catch (e) {} }
+    let n = 0; const w = () => { if (window.RUTA || n++ > 100) { this._ui = window.RUTA && window.RUTA.make(React); this.setState({ ok: true, st }); return; } setTimeout(w, 100); }; w();
+    this._poll = setInterval(() => this.poll(), 30000);
+    this._beat = setInterval(() => this.enviar(), 90000);
+    this._vis = () => { const s = this.state.st; if (document.hidden && s && s.id && !s.demo) { this.set({ salidas: (s.salidas || 0) + 1 }); this.setState({ aviso: true }); this.enviar(); } };
+    document.addEventListener('visibilitychange', this._vis);
+    this._bye = () => this.enviar({ beacon: true }); window.addEventListener('pagehide', this._bye);
+    this._on = () => { if (this._pend) { this._pend = false; this.enviar(); } }; window.addEventListener('online', this._on);
+  }
+  componentWillUnmount() { clearInterval(this._poll); clearInterval(this._beat); clearTimeout(this._t); document.removeEventListener('visibilitychange', this._vis); window.removeEventListener('pagehide', this._bye); window.removeEventListener('online', this._on); }
+  toast(t) { this.setState({ toast: t }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 4000); }
+  set(o, nuevo) {
+    const st = nuevo ? o : Object.assign({}, this.state.st || {}, o);
+    this.setState({ st });
+    if (!st.demo) { try { localStorage.setItem(LSK, JSON.stringify(st)); } catch (e) {} if (!nuevo && st.id) this.salvar(); }
+    if (nuevo) { try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} setTimeout(() => this.enviar(), 300); this.toast('Su código es ' + st.id + '. Anótenlo en el cuaderno.'); }
+  }
+  salvar() { clearTimeout(this._t); this._t = setTimeout(() => this.enviar(), 1500); }
+  enviar(extra) {
+    const st = this.state.st, u = URL_(); if (!st || !st.id || st.demo || !u || !window.RUTA) return;
+    const M = this._ui, N = M.notas(st), errs = {}, LL = M.LVX(st), done = LL.filter(l => (st.lv[l.id] || {}).done);
+    Object.values(st.lv || {}).forEach(L => Object.keys(L.errs || {}).forEach(k => { errs[k] = (errs[k] || 0) + L.errs[k]; }));
+    const p = Object.assign({ modo: 'ruta', id: st.id, curso: st.curso, par: st.par, pc: st.pc, integrantes: st.a1 + ' · ' + st.a2, nivel: Math.min(LL.length, done.length + 1), niveles: done.map(l => l.n).join(', '), c1: N.c1, c2: N.c2, pr: N.pr, fin: N.fin, errores: JSON.stringify(errs), salidas: st.salidas || 0, json: JSON.stringify(st) }, extra || {});
+    const body = JSON.stringify(p); if (extra && extra.beacon && navigator.sendBeacon) { navigator.sendBeacon(u, new Blob([body], { type: 'text/plain' })); return; }
+    fetch(u, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body }).then(() => { this._ultimo = Date.now(); }).catch(() => { this._pend = true; });
+  }
+  async poll() {
+    const st = this.state.st, u = URL_(); if (!st || !st.id || st.demo || !u) return;
+    try { const r = JSON.parse(await (await fetch(u + '?rid=' + encodeURIComponent(st.id) + '&t=' + Date.now())).text()); const ad = r.apoyo === 'Sí', ay = r.ayuda === 'SÍ';
+      if (ad !== !!st.ad || ay !== !!st.ayuda) { this.set({ ad, ayuda: ay }); if (ad && !st.ad) this.toast('El docente activó la versión con apoyo.'); if (!ay && st.ayuda) this.toast('El docente atendió su pedido de ayuda.'); } } catch (e) {}
+  }
+  async recuperar(id) {
+    const u = URL_(); if (!id) return false;
+    try { const L = JSON.parse(localStorage.getItem(LSK) || 'null'); if (L && L.id === id) { this.set(Object.assign({}, L, { vuelta: true }), false); return true; } } catch (e) {}
+    if (!u) return false;
+    try { const r = JSON.parse(await (await fetch(u + '?rid=' + encodeURIComponent(id) + '&t=' + Date.now())).text()); if (r && r.data && r.data.id) { const st = Object.assign({}, r.data, { ad: r.apoyo === 'Sí', ayuda: r.ayuda === 'SÍ', vuelta: true }); this.setState({ st }); try { localStorage.setItem(LSK, JSON.stringify(st)); } catch (e) {} this.toast('¡Bienvenidos de vuelta! Siguen donde se quedaron.'); return true; } } catch (e) {}
+    return false;
+  }
+  renderVals() {
+    const s = this.state, M = this._ui;
+    return {
+      cargando: !s.ok,
+      app: s.ok && M ? React.createElement(M.App, { st: s.st, url: URL_(), set: (o, n) => this.set(o, n), salvar: () => this.salvar(), recuperar: id => this.recuperar(id),
+        ayuda: () => { const v = !(s.st && s.st.ayuda); this.set({ ayuda: v }); if (v) { this.enviar({ pedirAyuda: true }); this.toast('Pedido de ayuda enviado. El docente lo ve en su panel.'); } else this.enviar({ cancelarAyuda: true }); },
+        salir: () => { const st = s.st; if (st.demo) { location.href = location.pathname; return; } if (!confirm('¿Anotaron su código ' + st.id + '? Lo necesitan para continuar la próxima clase.')) return; this.enviar(); try { localStorage.removeItem(LSK); } catch (e) {} this.setState({ st: null }); } }) : null,
+      hayAviso: s.aviso, salidas: (s.st && s.st.salidas) || 0, cerrarAviso: () => { this.setState({ aviso: false }); try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} },
+      hayToast: !!s.toast, toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
